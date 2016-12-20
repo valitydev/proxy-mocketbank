@@ -92,11 +92,11 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
         com.rbkmoney.damsel.proxy.Intent intent = ProxyWrapper.makeFinishIntentOk();
 
         try {
-            LOGGER.info("Call CDS in processPayment. Token {}, session: {}", token, session);
+            LOGGER.info("Processed: call CDS. Token {}, session: {}", token, session);
             cardData = cds.getSessionCardData(token, session);
         } catch (TException e) {
-            LOGGER.error("CDS Exception in processPayment", e);
-            return ProxyProviderWrapper.makeProxyResultFailure("CDS Exception in processPayment", e.getMessage());
+            LOGGER.error("Processed: CDS Exception", e);
+            return ProxyProviderWrapper.makeProxyResultFailure("Processed: CDS Exception", e.getMessage());
         }
 
         CardUtils cardUtils = new CardUtils(cardList);
@@ -106,7 +106,7 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
             TestMpiAction action = TestMpiAction.findByValue(card.get().getAction());
 
             if (!cardUtils.isEnrolled(card)) {
-                String error = null;
+                String error;
                 switch (action) {
                     case INCUFFICIENT_FUNDS:
                         error = INCUFFICIENT_FUNDS.getAction();
@@ -125,26 +125,29 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
                                 TestMpiUtils.generateInvoice(context.getPayment()),
                                 Collections.emptyMap()
                         );
-                        return ProxyProviderWrapper.makeProxyResult(
+                        ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResult(
                                 intent,
                                 "captured".getBytes(),
                                 transactionInfo
                         );
+                        LOGGER.info("Processed: success {}", proxyResult);
+                        return proxyResult;
                     default:
                         error = UNKNOWN_FAILURE.getAction();
 
                 }
-                return ProxyProviderWrapper.makeProxyResultFailure(
-                        error,
-                        error
-                );
+                ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResultFailure(error, error);
+                LOGGER.info("Processed: failure {}", proxyResult);
+                return ProxyProviderWrapper.makeProxyResultFailure(error, error);
             }
 
         } else {
-            return ProxyProviderWrapper.makeProxyResultFailure(
+            ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResultFailure(
                     UNSUPPORTED_CARD.getAction(),
                     UNSUPPORTED_CARD.getAction()
             );
+            LOGGER.info("Processed: failure {}", proxyResult);
+            return proxyResult;
         }
 
         VerifyEnrollmentResponse verifyEnrollmentResponse = null;
@@ -155,7 +158,7 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
                     cardData.getExpDate().getMonth()
             );
         } catch (IOException e) {
-            LOGGER.error("Exception in verifyEnrollment", e);
+            LOGGER.error("Processed: Exception in verifyEnrollment", e);
             return ProxyProviderWrapper.makeProxyResultFailure(
                     UNKNOWN_FAILURE.getAction(),
                     UNKNOWN_FAILURE.getAction()
@@ -163,15 +166,16 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
         }
 
         if (verifyEnrollmentResponse.getEnrolled().equals(TestMpiEnrollmentStatus.AUTHENTICATION_AVAILABLE)) {
-
             String tag = "MPI-" + TestMpiUtils.generateInvoice(context.getPayment());
+            LOGGER.info("Processed: suspend tag {}", tag);
 
-            // Prepare response
             String url = verifyEnrollmentResponse.getAcsUrl();
             Map<String, String> params = new HashMap<>();
             params.put("PaReq", verifyEnrollmentResponse.getPaReq());
             params.put("MD", tag);
             params.put("TermUrl", TestMpiUtils.getCallbackUrl(callbackUrl, "/test/term_url{?termination_uri}"));
+
+            LOGGER.info("Processed: prepare redirect params {}", params);
 
             intent = ProxyWrapper.makeIntentWithSuspendIntent(
                     tag, BaseWrapper.makeTimerTimeout(timerTimeout),
@@ -187,22 +191,24 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
         Map<String, String> extra = new HashMap<>();
         extra.put(TestMpiUtils.PA_REQ, verifyEnrollmentResponse.getPaReq());
 
-        LOGGER.info("Extra map {}", extra);
+        LOGGER.info("Processed: Extra map {}", extra);
 
         byte[] state;
         try {
             state = Converter.mapToByteArray(extra);
         } catch (IOException e) {
 
-            LOGGER.error("Converter Exception in processPayment", e);
+            LOGGER.error("Processed: Converter Exception", e);
             return ProxyProviderWrapper.makeProxyResultFailure("Converter", e.getMessage());
         }
 
-        return ProxyProviderWrapper.makeProxyResult(intent, state, transactionInfo);
+        ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResult(intent, state, transactionInfo);
+        LOGGER.info("Processed: finish {}", proxyResult);
+        return proxyResult;
     }
 
     private ProxyResult captured(Context context) {
-        LOGGER.info("captured start");
+        LOGGER.info("Captured: start");
         com.rbkmoney.damsel.proxy_provider.InvoicePayment payment = context.getPayment().getPayment();
         TransactionInfo transactionInfoContractor = payment.getTrx();
         TransactionInfo transactionInfo = DomainWrapper.makeTransactionInfo(
@@ -213,47 +219,51 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
         context.getSession().setState("confirm".getBytes());
 
         Intent intent = ProxyWrapper.makeFinishIntentOk();
-        LOGGER.info("capturePayment finish");
-        return ProxyProviderWrapper.makeProxyResult(intent, "confirm".getBytes(), transactionInfo);
+        ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResult(intent, "confirm".getBytes(), transactionInfo);
+
+        LOGGER.info("Captured: proxyResult {}", proxyResult);
+        return proxyResult;
     }
 
     private ProxyResult cancelled(Context context) {
-        return ProxyProviderWrapper.makeProxyResultFailure("Unsupported method CANCEL", "Unsupported method CANCEL");
+        ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResultFailure("Unsupported method CANCEL", "Unsupported method CANCEL");
+        LOGGER.error("Cancelled: proxyResult {}", proxyResult);
+        return proxyResult;
     }
 
     @Override
     public CallbackResult handlePaymentCallback(ByteBuffer byteBuffer, Context context) throws TryLater, TException {
-        LOGGER.info("handlePaymentCallback start");
+        LOGGER.info("HandlePaymentCallback: start");
         InvoicePayment invoicePayment = context.getPayment().getPayment();
+        String token = invoicePayment.getPayer().getPaymentTool().getBankCard().getToken();
+        String session = invoicePayment.getPayer().getSession();
         options = context.getOptions();
 
         HashMap<String, String> parameters;
 
-        // Merge parameters
+        LOGGER.info("HandlePaymentCallback: merge input parameters");
         try {
             parameters = (HashMap<String, String>) Converter.byteArrayToMap(context.getSession().getState());
             parameters.putAll(Converter.byteBufferToMap(byteBuffer));
         } catch (Exception e) {
-            LOGGER.error("Parse ByteBuffer Exception in handlePaymentCallback", e);
+            LOGGER.error("HandlePaymentCallback: Parse ByteBuffer Exception", e);
             return ProxyProviderWrapper.makeCallbackResultFailure(
                     "error".getBytes(),
-                    "Parse ByteBuffer Exception in handlePaymentCallback",
+                    "HandlePaymentCallback: Parse ByteBuffer Exception",
                     e.getMessage()
             );
         }
+        LOGGER.info("HandlePaymentCallback: merge input parameters {}", parameters);
 
         CardData cardData;
         try {
-            LOGGER.info("CDS: handlePaymentCallback get Card Data");
-            cardData = cds.getSessionCardData(
-                    invoicePayment.getPayer().getPaymentTool().getBankCard().getToken(),
-                    invoicePayment.getPayer().getSession()
-            );
+            LOGGER.info("HandlePaymentCallback: call CDS. Token {}, session: {}", token, session);
+            cardData = cds.getSessionCardData(token, session);
         } catch (TException e) {
-            LOGGER.error("CDS Exception in handlePaymentCallback", e);
+            LOGGER.error("HandlePaymentCallback: CDS Exception", e);
             return ProxyProviderWrapper.makeCallbackResultFailure(
                     "error".getBytes(),
-                    "CDS Exception in handlePaymentCallback",
+                    "HandlePaymentCallback: CDS Exception",
                     e.getMessage()
             );
         }
@@ -262,15 +272,14 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
         try {
             validatePaResResponse = testMpiApi.validatePaRes(cardData.getPan(), parameters.get("paRes"));
         } catch (IOException e) {
-            LOGGER.error("Exception in handlePaymentCallback", e);
+            LOGGER.error("HandlePaymentCallback: Exception", e);
             return ProxyProviderWrapper.makeCallbackResultFailure(
                     "error".getBytes(),
-                    "Exception in handlePaymentCallback",
+                    "HandlePaymentCallback: Exception",
                     e.getMessage()
             );
         }
-
-        LOGGER.info("validatePaResResponse {}", validatePaResResponse);
+        LOGGER.info("HandlePaymentCallback: validatePaResResponse {}", validatePaResResponse);
 
         if (validatePaResResponse.getTransactionStatus().equals(TestMpiTransactionStatus.AUTHENTICATION_SUCCESSFUL)) {
             byte[] callbackResponse = new byte[0];
@@ -281,20 +290,17 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
                     Collections.emptyMap()
             );
 
-            return ProxyProviderWrapper.makeCallbackResult(
-                    callbackResponse,
-                    ProxyProviderWrapper.makeProxyResult(
-                            intent, "captured".getBytes(), transactionInfo
-                    )
+            ProxyResult proxyResult = ProxyProviderWrapper.makeProxyResult(
+                    intent, "captured".getBytes(), transactionInfo
             );
+
+            LOGGER.info("HandlePaymentCallback: callbackResponse {}, proxyResult {}", callbackResponse, proxyResult);
+            return ProxyProviderWrapper.makeCallbackResult(callbackResponse, proxyResult);
         }
 
         CardUtils cardUtils = new CardUtils(cardList);
         Optional<Card> card = cardUtils.getCardByPan(cardData.getPan());
-
-
         TestMpiAction action = TestMpiAction.findByValue(card.get().getAction());
-
         String error;
 
         switch (action) {
@@ -309,12 +315,12 @@ public class TestServerHandler implements ProviderProxySrv.Iface {
 
         }
 
-        LOGGER.info("handlePaymentCallback finish");
-        return ProxyProviderWrapper.makeCallbackResultFailure(
-                "error".getBytes(),
-                "Exception in handlePaymentCallback",
-                error
+        CallbackResult callbackResult = ProxyProviderWrapper.makeCallbackResultFailure(
+                "error".getBytes(), "HandlePaymentCallback: error", error
         );
+
+        LOGGER.info("HandlePaymentCallback: callbackResult {}", callbackResult);
+        return callbackResult;
     }
 
 }
