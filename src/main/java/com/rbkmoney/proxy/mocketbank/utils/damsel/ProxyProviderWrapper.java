@@ -1,16 +1,21 @@
 package com.rbkmoney.proxy.mocketbank.utils.damsel;
 
+import com.rbkmoney.damsel.base.Timer;
 import com.rbkmoney.damsel.cds.CardData;
 import com.rbkmoney.damsel.cds.ExpDate;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.proxy.Intent;
-import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.damsel.proxy_provider.Invoice;
 import com.rbkmoney.damsel.proxy_provider.InvoicePayment;
+import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.damsel.proxy_provider.Shop;
+import com.rbkmoney.damsel.user_interaction.UserInteraction;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
+
+import static com.rbkmoney.proxy.mocketbank.utils.damsel.ProxyWrapper.makeFailure;
+
 
 public class ProxyProviderWrapper {
 
@@ -32,6 +37,12 @@ public class ProxyProviderWrapper {
         return target;
     }
 
+    public static TargetInvoicePaymentStatus makeTargetRefunded() {
+        TargetInvoicePaymentStatus target = new TargetInvoicePaymentStatus();
+        target.setRefunded(new InvoicePaymentRefunded());
+        return target;
+    }
+
     public static Session makeSession(TargetInvoicePaymentStatus target, byte[] state) {
         Session session = new Session();
         session.setTarget(target);
@@ -43,25 +54,145 @@ public class ProxyProviderWrapper {
         return ProxyProviderWrapper.makeSession(target, null);
     }
 
+
+    // RecurrentTokenIntent
+    public static RecurrentTokenSuccess makeRecurrentTokenSuccess(String token) {
+        RecurrentTokenSuccess recurrentTokenSuccess = new RecurrentTokenSuccess();
+        recurrentTokenSuccess.setToken(token);
+        return recurrentTokenSuccess;
+    }
+
+    public static RecurrentTokenFinishIntent makeRecurrentTokenStatusSuccess(String token) {
+        RecurrentTokenFinishIntent intent = new RecurrentTokenFinishIntent();
+
+        RecurrentTokenFinishStatus status = new RecurrentTokenFinishStatus();
+        status.setSuccess(makeRecurrentTokenSuccess(token));
+        intent.setStatus(status);
+
+        return intent;
+    }
+
+    public static RecurrentTokenFinishIntent makeRecurrentTokenStatusFailure(String code, String description) {
+        RecurrentTokenFinishIntent intent = new RecurrentTokenFinishIntent();
+
+        RecurrentTokenFinishStatus status = new RecurrentTokenFinishStatus();
+        status.setFailure(makeFailure(code, description));
+        intent.setStatus(status);
+
+        return intent;
+    }
+
+    public static RecurrentTokenIntent makeRecurrentTokenFinishIntentFailure(String code, String description) {
+        RecurrentTokenIntent intent = new RecurrentTokenIntent();
+        intent.setFinish(makeRecurrentTokenStatusFailure(code, description));
+        return intent;
+    }
+
+    public static RecurrentTokenIntent makeRecurrentTokenFinishIntentSuccess(String token) {
+        RecurrentTokenIntent intent = new RecurrentTokenIntent();
+        intent.setFinish(makeRecurrentTokenStatusSuccess(token));
+        return intent;
+    }
+
+    public static RecurrentTokenIntent makeRecurrentTokenWithSuspendIntent(String tag, Timer timer, UserInteraction userInteraction) {
+        RecurrentTokenIntent intent = new RecurrentTokenIntent();
+        intent.setSuspend(ProxyWrapper.makeSuspendIntent(tag, timer, userInteraction));
+        return intent;
+    }
+
+    public static RecurrentTokenIntent makeRecurrentTokenWithSuspendIntent(String tag, Timer timer) {
+        return makeRecurrentTokenWithSuspendIntent(tag, timer, null);
+    }
+
+    // RecurrentTokenInfo
+    public static RecurrentTokenInfo makeRecurrentTokenInfo(RecurrentPaymentTool recurrentPaymentTool) {
+        RecurrentTokenInfo recurrentTokenInfo = new RecurrentTokenInfo();
+        recurrentTokenInfo.setPaymentTool(recurrentPaymentTool);
+        return recurrentTokenInfo;
+    }
+
+    // DisposablePaymentResource
+    public static DisposablePaymentResource makeDisposablePaymentResource(String sessionId, PaymentTool paymentTool) {
+        DisposablePaymentResource disposablePaymentResource = new DisposablePaymentResource();
+        disposablePaymentResource.setPaymentSessionId(sessionId);
+        disposablePaymentResource.setPaymentTool(paymentTool);
+        return disposablePaymentResource;
+    }
+
+    // RecurrentPaymentTool
+    public static RecurrentPaymentTool makeRecurrentPaymentTool(DisposablePaymentResource disposablePaymentResource) {
+        RecurrentPaymentTool recurrentPaymentTool = new RecurrentPaymentTool();
+        recurrentPaymentTool.setPaymentResource(disposablePaymentResource);
+        return recurrentPaymentTool;
+    }
+
+    public static RecurrentPaymentTool makeRecurrentPaymentTool(DisposablePaymentResource disposablePaymentResource, com.rbkmoney.damsel.proxy_provider.Cash cash) {
+        RecurrentPaymentTool recurrentPaymentTool = new RecurrentPaymentTool();
+        recurrentPaymentTool.setPaymentResource(disposablePaymentResource);
+        recurrentPaymentTool.setMinimalPaymentCost(cash);
+        return recurrentPaymentTool;
+    }
+
+    public static RecurrentPaymentTool makeRecurrentPaymentTool(String id, DisposablePaymentResource disposablePaymentResource, com.rbkmoney.damsel.proxy_provider.Cash cash) {
+        RecurrentPaymentTool recurrentPaymentTool = new RecurrentPaymentTool();
+        recurrentPaymentTool.setPaymentResource(disposablePaymentResource);
+        recurrentPaymentTool.setMinimalPaymentCost(cash);
+        recurrentPaymentTool.setId(id);
+        return recurrentPaymentTool;
+    }
+
+
+    // RecurrentTokenProxyResult
+    public static RecurrentTokenProxyResult makeRecurrentTokenProxyResult(
+            RecurrentTokenIntent intent, byte[] nextState, String token, TransactionInfo trx
+    ) {
+        RecurrentTokenProxyResult result = new RecurrentTokenProxyResult();
+        result.setIntent(intent);
+        result.setNextState(nextState);
+        result.setToken(token);
+        result.setTrx(trx);
+        return result;
+    }
+
+    public static RecurrentTokenProxyResult makeRecurrentTokenProxyResult(RecurrentTokenIntent intent) {
+        return makeRecurrentTokenProxyResult(intent, null, null, null);
+    }
+
+    public static RecurrentTokenProxyResult makeRecurrentTokenProxyResult(
+            RecurrentTokenIntent intent, byte[] nextState
+    ) {
+        return makeRecurrentTokenProxyResult(intent, nextState, null, null);
+    }
+
+    public static RecurrentTokenProxyResult makeRecurrentTokenProxyResult(
+            RecurrentTokenIntent intent, byte[] nextState, String token
+    ) {
+        return makeRecurrentTokenProxyResult(intent, nextState, token, null);
+    }
+
+    public static RecurrentTokenProxyResult makeRecurrentTokenProxyResultFailure(String code, String description) {
+        return makeRecurrentTokenProxyResult(makeRecurrentTokenFinishIntentFailure(code, description));
+    }
+
     // ProxyResult
-    public static ProxyResult makeProxyResult(Intent intent, byte[] next_state, TransactionInfo trx) {
-        ProxyResult proxyResult = new ProxyResult();
+    public static PaymentProxyResult makePaymentProxyResult(Intent intent, byte[] next_state, TransactionInfo trx) {
+        PaymentProxyResult proxyResult = new PaymentProxyResult();
         proxyResult.setIntent(intent);
         proxyResult.setNextState(next_state);
         proxyResult.setTrx(trx);
         return proxyResult;
     }
 
-    public static ProxyResult makeProxyResult(Intent intent, byte[] next_state) {
-        return makeProxyResult(intent, next_state, null);
+    public static PaymentProxyResult makePaymentProxyResult(Intent intent, byte[] next_state) {
+        return makePaymentProxyResult(intent, next_state, null);
     }
 
-    public static ProxyResult makeProxyResult(Intent intent) {
-        return makeProxyResult(intent, null, null);
+    public static PaymentProxyResult makePaymentProxyResult(Intent intent) {
+        return makePaymentProxyResult(intent, null, null);
     }
 
-    public static ProxyResult makeProxyResultFailure(String code, String description) {
-        ProxyResult proxyResult = new ProxyResult();
+    public static PaymentProxyResult makeProxyResultFailure(String code, String description) {
+        PaymentProxyResult proxyResult = new PaymentProxyResult();
         proxyResult.setIntent(ProxyWrapper.makeFinishIntentFailure(code, description));
         return proxyResult;
     }
@@ -76,6 +207,13 @@ public class ProxyProviderWrapper {
 
     public static com.rbkmoney.damsel.proxy_provider.Cash makeCash(Currency currency, Long amount) {
         com.rbkmoney.damsel.proxy_provider.Cash cash = new com.rbkmoney.damsel.proxy_provider.Cash();
+        cash.setAmount(amount);
+        cash.setCurrency(currency);
+        return cash;
+    }
+
+    public static com.rbkmoney.damsel.domain.Cash makeCash(CurrencyRef currency, Long amount) {
+        com.rbkmoney.damsel.domain.Cash cash = new com.rbkmoney.damsel.domain.Cash();
         cash.setAmount(amount);
         cash.setCurrency(currency);
         return cash;
@@ -101,12 +239,12 @@ public class ProxyProviderWrapper {
         return paymentInfo;
     }
 
-    public static Context makeContext(
+    public static PaymentContext makeContext(
             com.rbkmoney.damsel.proxy_provider.PaymentInfo paymentInfo,
             com.rbkmoney.damsel.proxy_provider.Session session,
             Map<String, String> options
     ) {
-        Context context = new Context();
+        PaymentContext context = new PaymentContext();
         context.setPaymentInfo(paymentInfo);
         context.setSession(session);
         context.setOptions(options);
@@ -129,20 +267,38 @@ public class ProxyProviderWrapper {
     }
 
 
-    public static InvoicePayment makeInvoicePayment(String invoicePaymentId, String created_at, com.rbkmoney.damsel.domain.Payer payer, com.rbkmoney.damsel.proxy_provider.Cash cost) {
+    public static InvoicePayment makeInvoicePayment(String invoicePaymentId, String created_at, PaymentResource paymentResource, com.rbkmoney.damsel.proxy_provider.Cash cost) {
         InvoicePayment invoicePayment = new InvoicePayment();
         invoicePayment.setId(invoicePaymentId);
         invoicePayment.setCreatedAt(created_at);
-        invoicePayment.setPayer(payer);
+        invoicePayment.setPaymentResource(paymentResource);
         invoicePayment.setCost(cost);
         return invoicePayment;
     }
 
-    public static InvoicePayment makeInvoicePaymentWithTrX(String invoicePaymentId, String created_at, com.rbkmoney.damsel.domain.Payer payer, com.rbkmoney.damsel.proxy_provider.Cash cost, TransactionInfo transactionInfo) {
+    public static PaymentResource makePaymentResourceDisposablePaymentResource(DisposablePaymentResource disposablePaymentResource) {
+        PaymentResource paymentResource = new PaymentResource();
+        paymentResource.setDisposablePaymentResource(disposablePaymentResource);
+        return paymentResource;
+    }
+
+    public static RecurrentPaymentResource makeRecurrentPaymentResource(String token) {
+        RecurrentPaymentResource resource = new RecurrentPaymentResource();
+        resource.setRecToken(token);
+        return resource;
+    }
+
+    public static PaymentResource makePaymentResourceRecurrentPaymentResource(RecurrentPaymentResource recurrentPaymentResource) {
+        PaymentResource paymentResource = new PaymentResource();
+        paymentResource.setRecurrentPaymentResource(recurrentPaymentResource);
+        return paymentResource;
+    }
+
+    public static InvoicePayment makeInvoicePaymentWithTrX(String invoicePaymentId, String created_at, PaymentResource paymentResource, com.rbkmoney.damsel.proxy_provider.Cash cost, TransactionInfo transactionInfo) {
         InvoicePayment invoicePayment = new InvoicePayment();
         invoicePayment.setId(invoicePaymentId);
         invoicePayment.setCreatedAt(created_at);
-        invoicePayment.setPayer(payer);
+        invoicePayment.setPaymentResource(paymentResource);
         invoicePayment.setCost(cost);
         invoicePayment.setTrx(transactionInfo);
         return invoicePayment;
@@ -160,33 +316,55 @@ public class ProxyProviderWrapper {
         return session;
     }
 
-    public static CallbackProxyResult makeCallbackProxyResult(Intent intent, byte[] next_state, TransactionInfo trx) {
-        CallbackProxyResult proxyResult = new CallbackProxyResult();
+    public static PaymentCallbackProxyResult makeCallbackProxyResult(Intent intent, byte[] next_state, TransactionInfo trx) {
+        PaymentCallbackProxyResult proxyResult = new PaymentCallbackProxyResult();
         proxyResult.setIntent(intent);
         proxyResult.setNextState(next_state);
         proxyResult.setTrx(trx);
         return proxyResult;
     }
 
-    public static CallbackProxyResult makeCallbackProxyResultFailure(String code, String description) {
-        CallbackProxyResult proxyResult = new CallbackProxyResult();
+    public static PaymentCallbackProxyResult makeCallbackProxyResultFailure(String code, String description) {
+        PaymentCallbackProxyResult proxyResult = new PaymentCallbackProxyResult();
         proxyResult.setIntent(ProxyWrapper.makeFinishIntentFailure(code, description));
         return proxyResult;
     }
 
-    public static CallbackResult makeCallbackResult(byte[] callbackResponse, CallbackProxyResult proxyResult) {
-        CallbackResult callbackResult = new CallbackResult();
+    public static PaymentCallbackResult makeCallbackResult(byte[] callbackResponse, PaymentCallbackProxyResult proxyResult) {
+        PaymentCallbackResult callbackResult = new PaymentCallbackResult();
         callbackResult.setResponse(callbackResponse);
         callbackResult.setResult(proxyResult);
         return callbackResult;
     }
 
-
-    public static CallbackResult makeCallbackResultFailure(byte[] callbackResponse, String code, String description) {
-        CallbackResult callbackResult = new CallbackResult();
+    public static PaymentCallbackResult makeCallbackResultFailure(byte[] callbackResponse, String code, String description) {
+        PaymentCallbackResult callbackResult = new PaymentCallbackResult();
         callbackResult.setResponse(callbackResponse);
         callbackResult.setResult(ProxyProviderWrapper.makeCallbackProxyResultFailure(code, description));
         return callbackResult;
+    }
+
+    public static PaymentCallbackResult makeCallbackResultFailure(String code, String description) {
+        return makeCallbackResultFailure("error".getBytes(), code, description);
+    }
+
+    // RecurrentTokenCallbackResult
+    public static RecurrentTokenCallbackResult makeRecurrentTokenCallbackResult(byte[] callbackResponse, RecurrentTokenProxyResult proxyResult) {
+        RecurrentTokenCallbackResult result = new RecurrentTokenCallbackResult();
+        result.setResponse(callbackResponse);
+        result.setResult(proxyResult);
+        return result;
+    }
+
+    public static RecurrentTokenCallbackResult makeRecurrentTokenCallbackResultFailure(byte[] callbackResponse, String code, String description) {
+        RecurrentTokenCallbackResult result = new RecurrentTokenCallbackResult();
+        result.setResponse(callbackResponse);
+        result.setResult(makeRecurrentTokenProxyResult(makeRecurrentTokenFinishIntentFailure(code, description)));
+        return result;
+    }
+
+    public static RecurrentTokenCallbackResult makeRecurrentTokenCallbackResultFailure(String code, String description) {
+        return makeRecurrentTokenCallbackResultFailure("error".getBytes(), code, description);
     }
 
 }
