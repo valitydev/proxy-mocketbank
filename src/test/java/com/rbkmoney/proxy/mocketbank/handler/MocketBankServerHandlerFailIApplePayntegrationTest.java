@@ -1,6 +1,8 @@
 package com.rbkmoney.proxy.mocketbank.handler;
 
 import com.rbkmoney.damsel.cds.*;
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.BankCardTokenProvider;
 import com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.proxy_provider.PaymentContext;
@@ -50,9 +52,9 @@ import static org.junit.Assert.assertTrue;
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Ignore("Integration test")
-public class MocketBankServerHandlerFailIntegrationTest {
+public class MocketBankServerHandlerFailIApplePayntegrationTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MocketBankServerHandlerFailIntegrationTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(MocketBankServerHandlerFailIApplePayntegrationTest.class);
 
     @ClassRule
     public final static IntegrationBaseRule rule = new IntegrationBaseRule();
@@ -94,16 +96,7 @@ public class MocketBankServerHandlerFailIntegrationTest {
     @Test
     public void testProcessPaymentFail() throws TException, IOException, URISyntaxException {
         String[] cards = {
-            "4000000000000002",
-            "5100000000000412",
-            "4222222222222220",
-            "5100000000000511",
-            "4003830171874018",
-            "5496198584584769",
-            "4000000000000069",
-            "5105105105105100",
-            "4111110000000112",
-            "5124990000000002",
+            "5000000000000009",
         };
 
         // Put the card and save the response to a subsequent request
@@ -171,9 +164,16 @@ public class MocketBankServerHandlerFailIntegrationTest {
                 DomainWrapper.makeDisposablePaymentResource(
                         DomainWrapper.makeClientInfo("fingerprint", "ip"),
                         putCardDataResponse.getSessionId(),
-                        DomainWrapper.makePaymentTool(putCardDataResponse.getBankCard())
+                        DomainWrapper.makePaymentTool(
+                                getBankCardWithToken(putCardDataResponse.getBankCard())
+                        )
                 )
         );
+    }
+
+    private BankCard getBankCardWithToken(BankCard bankCard) {
+        bankCard.setTokenProvider(BankCardTokenProvider.applepay);
+        return bankCard;
     }
 
     private byte[] getSessionState() throws IOException {

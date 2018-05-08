@@ -1,6 +1,8 @@
 package com.rbkmoney.proxy.mocketbank.handler;
 
 import com.rbkmoney.damsel.cds.*;
+import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.BankCardTokenProvider;
 import com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.proxy_provider.PaymentContext;
@@ -12,6 +14,7 @@ import com.rbkmoney.proxy.mocketbank.utils.cds.CdsApi;
 import com.rbkmoney.proxy.mocketbank.utils.damsel.CdsWrapper;
 import com.rbkmoney.proxy.mocketbank.utils.damsel.DomainWrapper;
 import com.rbkmoney.proxy.mocketbank.utils.damsel.ProxyProviderWrapper;
+import com.rbkmoney.proxy.mocketbank.utils.damsel.ProxyWrapper;
 import org.apache.thrift.TException;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,7 +35,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -50,9 +53,9 @@ import static org.junit.Assert.assertTrue;
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Ignore("Integration test")
-public class MocketBankServerHandlerFailIntegrationTest {
+public class MocketBankServerHandlerSuccessApplePayIntegrationTest {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MocketBankServerHandlerFailIntegrationTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(MocketBankServerHandlerSuccessApplePayIntegrationTest.class);
 
     @ClassRule
     public final static IntegrationBaseRule rule = new IntegrationBaseRule();
@@ -92,18 +95,9 @@ public class MocketBankServerHandlerFailIntegrationTest {
     }
 
     @Test
-    public void testProcessPaymentFail() throws TException, IOException, URISyntaxException {
+    public void testProcessPaymentSuccess() throws TException, IOException, URISyntaxException {
         String[] cards = {
-            "4000000000000002",
-            "5100000000000412",
-            "4222222222222220",
-            "5100000000000511",
-            "4003830171874018",
-            "5496198584584769",
-            "4000000000000069",
-            "5105105105105100",
-            "4111110000000112",
-            "5124990000000002",
+            "4300000000000777",
         };
 
         // Put the card and save the response to a subsequent request
@@ -115,12 +109,12 @@ public class MocketBankServerHandlerFailIntegrationTest {
                     Byte.parseByte("12"),
                     Short.parseShort("2020")
             );
-            processPaymentFail(cardData);
+            processPaymentSuccess(cardData);
         }
 
     }
 
-    private void processPaymentFail(CardData cardData) throws TException, URISyntaxException, IOException {
+    private void processPaymentSuccess(CardData cardData) throws TException, URISyntaxException, IOException {
         PutCardDataResult putCardDataResponse = cdsPutCardData(cardData);
 
         PaymentProxyResult processResultPayment = handler.processPayment(
@@ -131,7 +125,28 @@ public class MocketBankServerHandlerFailIntegrationTest {
                 )
         );
 
-        assertTrue("Process payment ", processResultPayment.getIntent().getFinish().getStatus().getFailure().isSetCode());
+        assertEquals("Process payment ", ProxyWrapper.makeFinishStatusSuccess(), processResultPayment.getIntent().getFinish().getStatus());
+
+        if (processResultPayment.getIntent().getFinish().getStatus().equals(ProxyWrapper.makeFinishStatusSuccess())) {
+
+            LOGGER.info("Call capture payment");
+            // Обрабатываем ответ и вызываем CapturePayment
+            PaymentProxyResult processResultCapture = handler.processPayment(
+                    getContext(
+                            putCardDataResponse,
+                            ProxyProviderWrapper.makeTargetCaptured(),
+                            DomainWrapper.makeTransactionInfo(
+                                    processResultPayment.getTrx().getId(),
+                                    Collections.emptyMap()
+                            )
+                    )
+            );
+
+            assertEquals("Process Capture ", ProxyWrapper.makeFinishStatusSuccess(), processResultCapture.getIntent().getFinish().getStatus());
+
+            // Обрабатываем ответ
+            LOGGER.info("Response capture payment {}", processResultCapture.toString());
+        }
     }
 
     private Map<String, String> getOptionsProxy() {
@@ -166,15 +181,24 @@ public class MocketBankServerHandlerFailIntegrationTest {
         );
     }
 
+
     private PaymentResource getPaymentResource(PutCardDataResult putCardDataResponse) {
         return ProxyProviderWrapper.makePaymentResourceDisposablePaymentResource(
                 DomainWrapper.makeDisposablePaymentResource(
                         DomainWrapper.makeClientInfo("fingerprint", "ip"),
                         putCardDataResponse.getSessionId(),
-                        DomainWrapper.makePaymentTool(putCardDataResponse.getBankCard())
+                        DomainWrapper.makePaymentTool(
+                                getBankCardWithToken(putCardDataResponse.getBankCard())
+                        )
                 )
         );
     }
+
+    private BankCard getBankCardWithToken(BankCard bankCard) {
+        bankCard.setTokenProvider(BankCardTokenProvider.applepay);
+        return bankCard;
+    }
+
 
     private byte[] getSessionState() throws IOException {
         return Converter.mapToByteArray(Collections.emptyMap());

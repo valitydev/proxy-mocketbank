@@ -2,6 +2,7 @@ package com.rbkmoney.proxy.mocketbank.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rbkmoney.damsel.cds.CardData;
+import com.rbkmoney.damsel.domain.BankCardTokenProvider;
 import com.rbkmoney.damsel.domain.TargetInvoicePaymentStatus;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.proxy_provider.*;
@@ -73,7 +74,8 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
         String token = context.getTokenInfo().getPaymentTool().getPaymentResource().getPaymentTool().getBankCard().getToken();
 
         RecurrentTokenIntent intent = ProxyProviderWrapper.makeRecurrentTokenFinishIntentSuccess(token);
-        CardData cardData = cds.getSessionCardData(context);
+
+        CardData cardData = cds.getCardData(token);
 
         CardUtils cardUtils = new CardUtils(cardList);
         Optional<Card> card = cardUtils.getCardByPan(cardData.getPan());
@@ -204,8 +206,8 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             throw new IllegalArgumentException(message, ex);
         }
 
-
-        CardData cardData = cds.getSessionCardData(context);
+        String token = context.getTokenInfo().getPaymentTool().getPaymentResource().getPaymentTool().getBankCard().getToken();
+        CardData cardData = cds.getCardData(token);
 
         ValidatePaResResponse validatePaResResponse;
         try {
@@ -219,7 +221,6 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
 
         if (validatePaResResponse.getTransactionStatus().equals(MocketBankMpiTransactionStatus.AUTHENTICATION_SUCCESSFUL)) {
             byte[] callbackResponse = new byte[0];
-            String token = context.getTokenInfo().getPaymentTool().getPaymentResource().getPaymentTool().getBankCard().getToken();
             RecurrentTokenIntent intent = ProxyProviderWrapper.makeRecurrentTokenFinishIntentSuccess(token);
 
             RecurrentTokenProxyResult proxyResult = ProxyProviderWrapper.makeRecurrentTokenProxyResult(
@@ -306,7 +307,7 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
         if (invoicePayment.getPaymentResource().isSetRecurrentPaymentResource()) {
             cardData = cds.getCardData(invoicePayment.getPaymentResource().getRecurrentPaymentResource().getRecToken());
         } else {
-            cardData = cds.getSessionCardData(context);
+            cardData = cds.getCardData(context);
         }
 
         TransactionInfo transactionInfo = null;
@@ -331,9 +332,28 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
                     case CVV_MATCH_FAIL:
                         error = CVV_MATCH_FAIL.getAction();
                         break;
+                    case APPLE_PAY_FAILURE:
+                        error = APPLE_PAY_FAILURE.getAction();
+                        break;
+
                     case EXPIRED_CARD:
                         error = EXPIRED_CARD.getAction();
                         break;
+
+                    case APPLE_PAY_SUCCESS:
+
+                        Optional<BankCardTokenProvider> bankCardTokenProvider = Optional.of(
+                                context.getPaymentInfo().getPayment()
+                                        .getPaymentResource().getDisposablePaymentResource()
+                                        .getPaymentTool().getBankCard().getTokenProvider()
+                        );
+
+                        if (!bankCardTokenProvider.isPresent() || !BankCardTokenProvider.applepay.equals(bankCardTokenProvider.get())) {
+                            String message = "Processed: bankCardTokenProvider is missing or not APPLE PAY with invoiceId " + invoiceId;
+                            log.error(message);
+                            throw new IllegalArgumentException(message);
+                        }
+
                     case SUCCESS:
                         transactionInfo = DomainWrapper.makeTransactionInfo(
                                 MocketBankMpiUtils.generateInvoice(context.getPaymentInfo()),
@@ -501,7 +521,7 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             throw new IllegalArgumentException(message, ex);
         }
 
-        CardData cardData = cds.getSessionCardData(context);
+        CardData cardData = cds.getCardData(context);
         ValidatePaResResponse validatePaResResponse;
         try {
             validatePaResResponse = mocketBankMpiApi.validatePaRes(cardData.getPan(), parameters.get("paRes"));
