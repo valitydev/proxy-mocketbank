@@ -176,7 +176,8 @@ public class MocketBankServerHandlerSuccessSamsungPayIntegrationTest {
                         "2016-06-02",
                         getPaymentResource(putCardDataResponse),
                         getCost(),
-                        transactionInfo
+                        transactionInfo,
+                        Boolean.FALSE
                 )
         );
     }
@@ -227,7 +228,7 @@ public class MocketBankServerHandlerSuccessSamsungPayIntegrationTest {
         LOGGER.info("CDS: put card request start");
 
         Auth3DS auth3DS = CdsWrapper.makeAuth3DS("jKfi3B417+zcCBFYbFp3CBUAAAA=", "5");
-        AuthData authData = CdsWrapper.makeAuthData(auth3DS);
+        AuthData authData = CdsWrapper.makeAuthDataWithAuth3DS(auth3DS);
 
         SessionData sessionData = CdsWrapper.makeSessionData(authData);
 

@@ -162,7 +162,7 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             log.info("GenerateToken: prepare redirect params {} with recurrentId {}", params, recurrentId);
 
             intent = ProxyProviderWrapper.makeRecurrentTokenWithSuspendIntent(
-                    tag, BaseWrapper.makeTimerTimeout(timerTimeout),
+                    tag, timerTimeout,
                     UserInteractionWrapper.makeUserInteraction(
                             UserInteractionWrapper.makeBrowserPostRequest(
                                     url,
@@ -313,7 +313,7 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
 
         CardData cardData;
         if (invoicePayment.getPaymentResource().isSetRecurrentPaymentResource()) {
-            cardData = cds.getCardData(invoicePayment.getPaymentResource().getRecurrentPaymentResource().getRecToken());
+            cardData = cds.getCardData(invoicePayment.getPaymentResource().getRecurrentPaymentResource().getPaymentTool().getBankCard().getToken());
         } else {
             cardData = cds.getCardData(context);
         }
@@ -449,7 +449,7 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             log.info("Processed: prepare redirect params {} with invoiceId {}", params, invoiceId);
 
             intent = ProxyWrapper.makeIntentWithSuspendIntent(
-                    tag, BaseWrapper.makeTimerTimeout(timerTimeout),
+                    tag, timerTimeout,
                     UserInteractionWrapper.makeUserInteraction(
                             UserInteractionWrapper.makeBrowserPostRequest(
                                     url,
@@ -492,6 +492,11 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
         context.getSession().setState(PaymentState.CONFIRM.getBytes());
 
         Intent intent = ProxyWrapper.makeFinishIntentSuccess();
+        if((context.getPaymentInfo().getPayment().isSetMakeRecurrent()
+                && context.getPaymentInfo().getPayment().isMakeRecurrent())) {
+            intent = ProxyWrapper.makeFinishIntentSuccessWithToken(invoiceId);
+        }
+
         PaymentProxyResult proxyResult = ProxyProviderWrapper.makePaymentProxyResult(intent, PaymentState.CONFIRM.getBytes(), transactionInfo);
 
         log.info("Captured: proxyResult {} with invoiceId {}", proxyResult, invoiceId);
