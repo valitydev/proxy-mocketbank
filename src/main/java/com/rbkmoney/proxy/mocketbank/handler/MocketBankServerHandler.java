@@ -197,7 +197,6 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
         String recurrentId = context.getTokenInfo().getPaymentTool().getId();
         log.info("handleRecurrentTokenCallback start with invoiceId {}", recurrentId);
 
-
         HashMap<String, String> parameters;
         try {
             parameters = (HashMap<String, String>) Converter.byteArrayToMap(context.getSession().getState());
@@ -264,7 +263,6 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {
         String invoiceId = context.getPaymentInfo().getInvoice().getId();
         log.info("processPayment start with invoiceId {}", invoiceId);
-
         Map<String, String> options = (context.getOptions().size() > 0) ? context.getOptions() : new HashMap<>();
 
         TargetInvoicePaymentStatus target = context.getSession().getTarget();
@@ -297,14 +295,12 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             }
             throw ex;
         }
-
     }
 
     private PaymentProxyResult processed(PaymentContext context, Map<String, String> options) {
         com.rbkmoney.damsel.proxy_provider.InvoicePayment invoicePayment = context.getPaymentInfo().getPayment();
         String invoiceId = context.getPaymentInfo().getInvoice().getId();
         log.info("Processed start with invoiceId {}", invoiceId);
-
         CardData cardData;
         if (invoicePayment.getPaymentResource().isSetRecurrentPaymentResource()) {
             cardData = cds.getCardData(invoicePayment.getPaymentResource().getRecurrentPaymentResource().getPaymentTool().getBankCard().getToken());
@@ -336,7 +332,6 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
             log.info("Processed: success {} with invoiceId {}", proxyResult, invoiceId);
             return proxyResult;
         }
-
 
         CardUtils cardUtils = new CardUtils(cardList);
         Optional<Card> card = cardUtils.getCardByPan(cardData.getPan());
@@ -462,7 +457,6 @@ public class MocketBankServerHandler implements ProviderProxySrv.Iface {
         extra.put(MocketBankMpiUtils.PA_REQ, verifyEnrollmentResponse.getPaReq());
 
         log.info("Processed: Extra map {} with invoiceId {}", extra, invoiceId);
-
         byte[] state;
         try {
             state = Converter.mapToByteArray(extra);
