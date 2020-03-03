@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 
 @Slf4j
 @RequiredArgsConstructor
-public class MobileServerHandlerLog implements ProviderProxySrv.Iface {
+public class TerminalServerHandlerLog implements ProviderProxySrv.Iface {
 
     private final ProviderProxySrv.Iface handler;
 

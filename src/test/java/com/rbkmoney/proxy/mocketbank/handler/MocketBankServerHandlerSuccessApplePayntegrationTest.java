@@ -2,10 +2,11 @@ package com.rbkmoney.proxy.mocketbank.handler;
 
 import com.rbkmoney.damsel.cds.CardData;
 import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.TransactionInfo;
+import com.rbkmoney.damsel.domain.BankCardTokenProvider;
 import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
-import com.rbkmoney.proxy.mocketbank.utils.p2p.constant.testcards.*;
+import com.rbkmoney.proxy.mocketbank.utils.p2p.constant.testcards.TestCard;
+import com.rbkmoney.proxy.mocketbank.utils.p2p.constant.testcards.Visa;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -14,9 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collections;
-
-import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.*;
+import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.createTargetProcessed;
 import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.isSuccess;
 import static com.rbkmoney.proxy.mocketbank.TestData.createCardData;
 import static org.junit.Assert.assertTrue;
@@ -30,33 +29,27 @@ import static org.junit.Assert.assertTrue;
         }
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class MocketBankServerHandlerSuccessIntegrationTest extends IntegrationTest {
+public class MocketBankServerHandlerSuccessApplePayntegrationTest extends IntegrationTest {
 
     @Test
-    public void testProcessPaymentSuccess() throws TException {
+    public void testProcessPaymentFail() throws TException {
         TestCard[] cards = {
-                Visa.SUCCESS,
-                Mastercard.SUCCESS,
-                Maestro.SUCCESS,
-                Mir.SUCCESS
+                Visa.APPLE_PAY_FAILURE
         };
 
         for (TestCard card : cards) {
             CardData cardData = createCardData(card.getCardNumber());
-            processPaymentSuccess(cardData);
+            processPayment(cardData);
         }
     }
 
-    private void processPaymentSuccess(CardData cardData) throws TException {
+    private void processPayment(CardData cardData) throws TException {
         BankCard bankCard = TestData.createBankCard(cardData);
+        bankCard.setTokenProvider(BankCardTokenProvider.applepay);
         mockCds(cardData, bankCard);
 
-        PaymentProxyResult result = handler.processPayment(getContext(bankCard, createTargetProcessed(), null));
-        assertTrue("Process payment isn`t success", isSuccess(result));
-
-        TransactionInfo trxInfo = createTransactionInfo(result.getTrx().getId(), Collections.emptyMap());
-        result = handler.processPayment(getContext(bankCard, createTargetCaptured(), trxInfo));
-        assertTrue("Process Capture isn`t success", isSuccess(result));
+        PaymentProxyResult proxyResult = handler.processPayment(getContext(bankCard, createTargetProcessed(), null));
+        assertTrue("Process payment isn`t success", isSuccess(proxyResult));
     }
 
 }
