@@ -2,7 +2,7 @@ package com.rbkmoney.proxy.mocketbank.decorator;
 
 import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.java.damsel.utils.extractors.ProxyProviderPackageExtractors;
-import com.rbkmoney.proxy.mocketbank.converter.PaymentResourceTypeResolver;
+import com.rbkmoney.proxy.mocketbank.utils.converter.PaymentResourceTypeResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -25,7 +25,7 @@ public class TerminalServerHandlerLog implements ProviderProxySrv.Iface {
             return proxyResult;
         } catch (Exception ex) {
             String message = String.format("Failed handle GenerateToken with recurrentId=%s", recurrentId);
-            ServerHandlerLogUtils.logMessage(ex, message);
+            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
             throw ex;
         }
     }
@@ -50,11 +50,11 @@ public class TerminalServerHandlerLog implements ProviderProxySrv.Iface {
             log.info("Process payment handle resource={}, status={} finished with invoiceId={} and proxyResult={}",
                     paymentResourceType, invoicePaymentStatus, invoiceId, proxyResult);
             return proxyResult;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             String message = String.format("Failed handle resource=%s, status=%s process payment for operation with invoiceId %s",
                     paymentResourceType, invoicePaymentStatus, invoiceId);
-            ServerHandlerLogUtils.logMessage(e, message);
-            throw e;
+            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
+            throw ex;
         }
     }
 
@@ -66,4 +66,5 @@ public class TerminalServerHandlerLog implements ProviderProxySrv.Iface {
         log.info("HandlePaymentCallback finish {} with invoiceId={}", result, invoiceId);
         return result;
     }
+
 }

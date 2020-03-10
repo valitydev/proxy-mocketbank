@@ -20,8 +20,10 @@ public class MobileOperatorServerHandlerLog implements MnpSrv.Iface {
             return responseData;
         } catch (Exception ex) {
             String message = String.format("Failed Lookup with requestParams=%s", requestParams);
-            ServerHandlerLogUtils.logMessage(ex, message);
+            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
             throw ex;
         }
     }
+
+
 }

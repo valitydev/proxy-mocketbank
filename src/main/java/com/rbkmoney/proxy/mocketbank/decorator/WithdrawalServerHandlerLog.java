@@ -24,7 +24,7 @@ public class WithdrawalServerHandlerLog implements AdapterSrv.Iface {
             return processResult;
         } catch (Exception ex) {
             String message = String.format("Failed processWithdrawal with withdrawalId=%s", withdrawalId);
-            ServerHandlerLogUtils.logMessage(ex, message);
+            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
             throw ex;
         }
     }
@@ -39,7 +39,7 @@ public class WithdrawalServerHandlerLog implements AdapterSrv.Iface {
             return quote;
         } catch (Exception ex) {
             String message = String.format("Failed getQuote with idempotencyId=%s", idempotencyId);
-            ServerHandlerLogUtils.logMessage(ex, message);
+            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
             throw ex;
         }
     }

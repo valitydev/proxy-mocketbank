@@ -1,19 +1,19 @@
 package com.rbkmoney.proxy.mocketbank.decorator;
 
 import com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ServerHandlerLogUtils {
-    public static void logMessage(Exception ex, String message) {
+
+    public static final String MESSAGE_TEMPLATE = "Class {}, message {} ";
+
+    public static void logMessage(Exception ex, String message, Class<?> className) {
         if (ProxyProviderVerification.isUndefinedResultOrUnavailable(ex)) {
-            log.warn(message, ex);
+            log.warn(MESSAGE_TEMPLATE, className, message, ex);
         } else {
-            log.error(message, ex);
+            log.warn(MESSAGE_TEMPLATE, className, message, ex);
         }
     }
-}
 
+}
