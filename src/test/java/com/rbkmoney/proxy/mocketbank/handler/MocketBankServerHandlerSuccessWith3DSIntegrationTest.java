@@ -8,10 +8,9 @@ import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.EnrollmentStatus;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.TransactionStatus;
+import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
 import com.rbkmoney.proxy.mocketbank.utils.Converter;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Mastercard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.TestCard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Visa;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -23,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.createTargetCaptured;
@@ -46,18 +46,14 @@ public class MocketBankServerHandlerSuccessWith3DSIntegrationTest extends Integr
 
     @Test
     public void testProcessPaymentSuccess() throws TException, IOException {
-        TestCard[] cards = {
-                Visa.SUCCESS_3DS,
-                Mastercard.SUCCESS_3DS
-        };
-
-        for (TestCard card : cards) {
-            CardData cardData = createCardData(card.getCardNumber());
-            processPaymentSuccess(cardData);
+        List<String> pans = CardListUtils.extractPans(cardList, CardAction::isMpiCardSuccess);
+        for (String pan : pans) {
+            CardData cardData = createCardData(pan);
+            processPayment(cardData);
         }
     }
 
-    private void processPaymentSuccess(CardData cardData) throws TException, IOException {
+    private void processPayment(CardData cardData) throws TException, IOException {
         BankCard bankCard = TestData.createBankCard(cardData);
         mockCds(cardData, bankCard);
         mockMpiVerify(EnrollmentStatus.AUTHENTICATION_AVAILABLE);
@@ -74,7 +70,7 @@ public class MocketBankServerHandlerSuccessWith3DSIntegrationTest extends Integr
         ByteBuffer callbackMap = Converter.mapToByteBuffer(mapCallback);
 
         PaymentCallbackResult callbackResult = handler.handlePaymentCallback(callbackMap, paymentContext);
-        assertTrue("CallbackResult isn`t success", isCallbackSuccess(callbackResult));
+        assertTrue("CallbackResult isn`t success", isSuccess(callbackResult));
 
         paymentContext.getSession().setTarget(createTargetCaptured());
         paymentContext.getSession().setState(callbackResult.getResult().getNextState());

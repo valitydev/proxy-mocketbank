@@ -6,10 +6,9 @@ import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.proxy.mocketbank.TestData;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.EnrollmentStatus;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.TransactionStatus;
+import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
 import com.rbkmoney.proxy.mocketbank.utils.Converter;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Mastercard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.TestCard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Visa;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -21,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.createTargetCaptured;
@@ -43,13 +43,9 @@ public class MocketBankServerHandlerRecurrent3DSSuccessIntegrationTest extends I
 
     @Test
     public void testProcessPaymentSuccess() throws TException, IOException {
-        TestCard[] cards = {
-                Visa.SUCCESS_3DS,
-                Mastercard.SUCCESS_3DS
-        };
-
-        for (TestCard card : cards) {
-            CardData cardData = createCardData(card.getCardNumber());
+        List<String> pans = CardListUtils.extractPans(cardList, CardAction::isMpiCardSuccess);
+        for (String pan : pans) {
+            CardData cardData = createCardData(pan);
             processPayment(cardData);
         }
     }
@@ -72,7 +68,7 @@ public class MocketBankServerHandlerRecurrent3DSSuccessIntegrationTest extends I
         ByteBuffer callbackMap = Converter.mapToByteBuffer(mapCallback);
 
         RecurrentTokenCallbackResult tokenCallbackResult = handler.handleRecurrentTokenCallback(callbackMap, context);
-        assertTrue("HandleRecurrentTokenCallback isn`t success", isRecurrentTokenCallbackSuccess(tokenCallbackResult));
+        assertTrue("HandleRecurrentTokenCallback isn`t success", isSuccess(tokenCallbackResult));
 
         // process
         String token = tokenCallbackResult.getResult().getIntent().getFinish().getStatus().getSuccess().getToken();

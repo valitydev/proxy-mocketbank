@@ -5,8 +5,8 @@ import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.BankCardTokenProvider;
 import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Mastercard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.TestCard;
+import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -14,6 +14,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
 
 import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.createTargetProcessed;
 import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.isSuccess;
@@ -33,12 +35,9 @@ public class MocketBankServerHandlerSuccessSamsungPayIntegrationTest extends Int
 
     @Test
     public void testProcessPaymentSuccess() throws TException {
-        TestCard[] cards = {
-                Mastercard.SAMSUNG_PAY_SUCCESS,
-        };
-
-        for (TestCard card : cards) {
-            CardData cardData = createCardData(card.getCardNumber());
+        List<String> pans = CardListUtils.extractPans(cardList, CardAction::isCardSuccessSamsungPay);
+        for (String pan : pans) {
+            CardData cardData = createCardData(pan);
             processPayment(cardData);
         }
     }

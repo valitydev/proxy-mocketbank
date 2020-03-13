@@ -12,7 +12,6 @@ import com.rbkmoney.error.mapping.ErrorMapping;
 import com.rbkmoney.java.damsel.constant.PaymentState;
 import com.rbkmoney.proxy.mocketbank.configuration.properties.AdapterMockBankProperties;
 import com.rbkmoney.proxy.mocketbank.configuration.properties.TimerProperties;
-import com.rbkmoney.proxy.mocketbank.service.bank.constant.CustomError;
 import com.rbkmoney.proxy.mocketbank.service.mpi.MpiApi;
 import com.rbkmoney.proxy.mocketbank.service.mpi.model.VerifyEnrollmentResponse;
 import com.rbkmoney.proxy.mocketbank.utils.ErrorBuilder;
@@ -31,12 +30,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.rbkmoney.java.damsel.constant.Error.DEFAULT_ERROR_CODE;
+import static com.rbkmoney.java.damsel.constant.Error.THREE_DS_NOT_FINISHED;
 import static com.rbkmoney.java.damsel.utils.creators.ProxyProviderPackageCreators.*;
 import static com.rbkmoney.java.damsel.utils.extractors.OptionsExtractors.extractRedirectTimeout;
 import static com.rbkmoney.java.damsel.utils.extractors.ProxyProviderPackageExtractors.extractRecurrentId;
+import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.hasBankCardTokenProvider;
 import static com.rbkmoney.proxy.mocketbank.service.mpi.constant.EnrollmentStatus.isAuthenticationAvailable;
 import static com.rbkmoney.proxy.mocketbank.utils.UrlUtils.prepareRedirectParams;
-import static com.rbkmoney.proxy.mocketbank.utils.extractor.proxy.ProxyProviderPackageExtractors.hasBankCardTokenProvider;
 import static com.rbkmoney.proxy.mocketbank.utils.model.CardAction.*;
 
 @Slf4j
@@ -101,7 +101,7 @@ public class GenerateTokenHandler {
         RecurrentTokenIntent recurrentTokenIntent = createRecurrentTokenWithSuspendIntent(
                 tag, timerRedirectTimeout, createPostUserInteraction(url, params)
         );
-        Failure failure = errorMapping.mapFailure(DEFAULT_ERROR_CODE, CustomError.THREE_DS_NOT_FINISHED);
+        Failure failure = errorMapping.mapFailure(DEFAULT_ERROR_CODE, THREE_DS_NOT_FINISHED);
         recurrentTokenIntent.getSuspend().setTimeoutBehaviour(TimeoutBehaviour.operation_failure(OperationFailure.failure(failure)));
         return recurrentTokenIntent;
     }

@@ -5,7 +5,8 @@ import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.*;
+import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
+import java.util.List;
 
 import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.*;
 import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.isSuccess;
@@ -34,20 +36,14 @@ public class MocketBankServerHandlerSuccessIntegrationTest extends IntegrationTe
 
     @Test
     public void testProcessPaymentSuccess() throws TException {
-        TestCard[] cards = {
-                Visa.SUCCESS,
-                Mastercard.SUCCESS,
-                Maestro.SUCCESS,
-                Mir.SUCCESS
-        };
-
-        for (TestCard card : cards) {
-            CardData cardData = createCardData(card.getCardNumber());
-            processPaymentSuccess(cardData);
+        List<String> pans = CardListUtils.extractPans(cardList, CardAction::isCardSuccess);
+        for (String pan : pans) {
+            CardData cardData = createCardData(pan);
+            processPayment(cardData);
         }
     }
 
-    private void processPaymentSuccess(CardData cardData) throws TException {
+    private void processPayment(CardData cardData) throws TException {
         BankCard bankCard = TestData.createBankCard(cardData);
         mockCds(cardData, bankCard);
 

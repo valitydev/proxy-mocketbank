@@ -8,10 +8,9 @@ import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.EnrollmentStatus;
 import com.rbkmoney.proxy.mocketbank.service.mpi.constant.TransactionStatus;
+import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
 import com.rbkmoney.proxy.mocketbank.utils.Converter;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Mastercard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.TestCard;
-import com.rbkmoney.proxy.mocketbank.utils.constant.testcards.Visa;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -23,9 +22,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators.createTargetProcessed;
+import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.isFailure;
 import static com.rbkmoney.java.damsel.utils.verification.ProxyProviderVerification.isSuspend;
 import static com.rbkmoney.proxy.mocketbank.TestData.createCardData;
 import static org.junit.Assert.assertTrue;
@@ -44,20 +45,14 @@ public class MocketBankServerHandlerFailWith3DSIntegrationTest extends Integrati
 
     @Test
     public void testProcessPaymentFail() throws TException, IOException {
-        TestCard[] cards = {
-                Visa.FAILURE_3DS,
-                Mastercard.FAILURE_3DS,
-                Visa.TIMEOUT_3DS,
-                Mastercard.TIMEOUT_3DS
-        };
-
-        for (TestCard card : cards) {
-            CardData cardData = createCardData(card.getCardNumber());
-            processPaymentFail(cardData);
+        List<String> pans = CardListUtils.extractPans(cardList, CardAction::isMpiCardFailed);
+        for (String pan : pans) {
+            CardData cardData = createCardData(pan);
+            processPayment(cardData);
         }
     }
 
-    private void processPaymentFail(CardData cardData) throws TException, IOException {
+    private void processPayment(CardData cardData) throws TException, IOException {
         BankCard bankCard = TestData.createBankCard(cardData);
         mockCds(cardData, bankCard);
         mockMpiVerify(EnrollmentStatus.AUTHENTICATION_AVAILABLE);
@@ -74,7 +69,7 @@ public class MocketBankServerHandlerFailWith3DSIntegrationTest extends Integrati
         ByteBuffer callbackMap = Converter.mapToByteBuffer(mapCallback);
 
         PaymentCallbackResult callbackResult = handler.handlePaymentCallback(callbackMap, paymentContext);
-        assertTrue("CallbackResult isn`t failure", isCallbackFailure(callbackResult));
+        assertTrue("CallbackResult isn`t failure", isFailure(callbackResult));
     }
 
 }
