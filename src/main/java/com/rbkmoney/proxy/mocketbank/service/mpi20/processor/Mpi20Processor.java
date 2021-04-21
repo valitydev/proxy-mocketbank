@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.damsel.user_interaction.UserInteraction;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.Mpi20Client;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.converter.*;
+import com.rbkmoney.proxy.mocketbank.service.mpi20.model.Error;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -95,17 +96,21 @@ public class Mpi20Processor {
     }
 
     private boolean isPreparationSuccess(PreparationResponse response) {
-        return response.getError() == null
-                && response.getProtocolVersion().equals("2");
+        return isResponseHasNoError(response.getError())
+                && "2".equals(response.getProtocolVersion());
     }
 
     private boolean isAuthSuccess(AuthenticationResponse response) {
-        return response.getError() == null
+        return isResponseHasNoError(response.getError())
                 && response.getTransStatus().equals(TransactionStatus.CHALLENGE_REQUIRED.getCode());
     }
 
     private boolean isResultSuccess(ResultResponse response) {
-        return response.getError() == null
+        return isResponseHasNoError(response.getError())
                 && response.getTransStatus().equals(TransactionStatus.AUTHENTICATION_SUCCESSFUL.getCode());
+    }
+
+    private boolean isResponseHasNoError(Error error) {
+        return error.getCode() == null && error.getTitle() == null;
     }
 }
