@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.Map;
@@ -117,9 +118,15 @@ public class ProcessedCommonPaymentHandler implements CommonPaymentHandler {
         if (isAuthenticationAvailable(verifyEnrollmentResponse.getEnrolled())) {
             String tag = SuspendPrefix.PAYMENT.getPrefix() +
                     ProxyProviderPackageCreators.createInvoiceWithPayment(context.getPaymentInfo());
+            MultiValueMap<String, String> terminationUrl = UrlUtils.getTerminationUrlAsParam(
+                    context.getPaymentInfo().getPayment(),
+                    mockBankProperties.getFinishInteraction()
+            );
             String termUrl = UrlUtils.getCallbackUrl(
                     mockBankProperties.getCallbackUrl(),
-                    mockBankProperties.getPathCallbackUrl());
+                    mockBankProperties.getPathCallbackUrl(),
+                    terminationUrl
+            );
             currentIntent = prepareRedirect(context, verifyEnrollmentResponse, tag, termUrl);
         }
         byte[] state = StateUtils.prepareState(verifyEnrollmentResponse);
