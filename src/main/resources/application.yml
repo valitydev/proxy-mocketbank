@@ -43,9 +43,9 @@ adapter-mock-mpi:
 mpi20:
   threeDsServerUrl: http://127.0.0.1:8018
   callbackUrl: http://127.0.0.1:8019
-  threeDsMethodNotificationPath: /${server.rest.endpoint}/three_ds_method_notification{?termination_uri}
+  threeDsMethodNotificationPath: /${server.rest.endpoint}/three_ds_method_notification
   acsNotificationPath: /${server.rest.endpoint}/acs_notification
-  returnUrl: https://checkout.rbk.money/v1/finish-interaction.html
+  returnUrl: https://example.com/v1/finish-interaction.html
 ---
 adapter-mock-bank:
   callbackUrl: http://127.0.0.1:8019
@@ -53,7 +53,7 @@ adapter-mock-bank:
   pathRecurrentCallbackUrl: /${server.rest.endpoint}/rec_term_url{?termination_uri}
   pathQpsCallbackUrl: /${server.rest.endpoint}/qps
   pathDigitalWalletCallbackUrl: /${server.rest.endpoint}/dw
-  finishInteraction: https://checkout.rbk.money/v1/finish-interaction.html
+  finishInteraction: https://example.com/v1/finish-interaction.html
 ---
 cds:
   client:

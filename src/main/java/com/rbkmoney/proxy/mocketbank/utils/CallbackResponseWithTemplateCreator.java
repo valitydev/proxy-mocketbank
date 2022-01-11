@@ -8,7 +8,6 @@ import freemarker.template.TemplateException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class CallbackResponseWithTemplateCreator {
         String terminationUri = UrlUtils.hasRedirectUrl(context.getPaymentInfo().getPayment())
                 ? context.getPaymentInfo().getPayment().getPayerSessionInfo().getRedirectUrl()
                 : mpi20Properties.getReturnUrl();
-        String acsTermUrl = createCallbackUrlWithParam(
+        String acsTermUrl = UrlUtils.getCallbackUrl(
                 mpi20Properties.getCallbackUrl(),
                 mpi20Properties.getAcsNotificationPath(),
                 TERMINATION_URI,
@@ -51,15 +50,6 @@ public class CallbackResponseWithTemplateCreator {
         } catch (IOException | TemplateException e) {
             throw new RedirectTemplateException("Failed process redirect template into string", e);
         }
-    }
-
-    public static String createCallbackUrlWithParam(String callbackUrl, String path, String paramName,
-                                                    String paramValue) {
-        return UriComponentsBuilder.fromUriString(callbackUrl)
-                .path(path)
-                .queryParam(paramName, paramValue)
-                .build()
-                .toUriString();
     }
 
 }

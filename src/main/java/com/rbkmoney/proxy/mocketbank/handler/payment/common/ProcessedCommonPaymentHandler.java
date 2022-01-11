@@ -5,7 +5,6 @@ import com.rbkmoney.cds.client.storage.exception.CdsStorageExpDateException;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.proxy_provider.*;
 import com.rbkmoney.damsel.timeout_behaviour.TimeoutBehaviour;
-import com.rbkmoney.damsel.user_interaction.UserInteraction;
 import com.rbkmoney.error.mapping.ErrorMapping;
 import com.rbkmoney.java.cds.utils.model.CardDataProxyModel;
 import com.rbkmoney.java.damsel.constant.Error;
@@ -20,6 +19,7 @@ import com.rbkmoney.proxy.mocketbank.service.mpi20.processor.Mpi20Processor;
 import com.rbkmoney.proxy.mocketbank.utils.CreatorUtils;
 import com.rbkmoney.proxy.mocketbank.utils.ErrorBuilder;
 import com.rbkmoney.proxy.mocketbank.utils.UrlUtils;
+import com.rbkmoney.proxy.mocketbank.utils.UserInteractionUtils;
 import com.rbkmoney.proxy.mocketbank.utils.model.Card;
 import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import com.rbkmoney.proxy.mocketbank.utils.model.CardUtils;
@@ -91,7 +91,7 @@ public class ProcessedCommonPaymentHandler implements CommonPaymentHandler {
             if (CardAction.isCardEnrolled(card.get())) {
                 return prepareEnrolledPaymentProxyResult(context, intent, transactionInfo, cardData, action);
             } else if (CardAction.isCardEnrolled20(card.get())) {
-                return mpi20Processor.processPrepare(context);
+                return mpi20Processor.processPrepare(context, action);
             }
             return prepareNotEnrolledPaymentProxyResult(intent, transactionInfo, action);
         }
@@ -147,20 +147,11 @@ public class ProcessedCommonPaymentHandler implements CommonPaymentHandler {
         int timerRedirectTimeout = extractRedirectTimeout(options, timerProperties.getRedirectTimeout());
 
         Intent intent = createIntentWithSuspendIntent(
-                tag, timerRedirectTimeout, prepareUserInteraction(url, params, action)
+                tag, timerRedirectTimeout, UserInteractionUtils.prepareUserInteraction(url, params, action)
         );
         Failure failure = errorMapping.mapFailure(DEFAULT_ERROR_CODE, THREE_DS_NOT_FINISHED);
         intent.getSuspend().setTimeoutBehaviour(TimeoutBehaviour.operation_failure(OperationFailure.failure(failure)));
         return intent;
-    }
-
-    private UserInteraction prepareUserInteraction(String url,
-                                                   Map<String, String> params,
-                                                   CardAction action) {
-        if (CardAction.isGetAcsCard(action)) {
-            return createGetUserInteraction(UrlUtils.prepareUrlWithParams(url, params));
-        }
-        return createPostUserInteraction(url, params);
     }
 
 }

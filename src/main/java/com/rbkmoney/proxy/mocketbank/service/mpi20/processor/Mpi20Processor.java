@@ -9,7 +9,8 @@ import com.rbkmoney.proxy.mocketbank.service.mpi20.converter.*;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.model.Error;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.model.*;
 import com.rbkmoney.proxy.mocketbank.utils.CreatorUtils;
-import com.rbkmoney.proxy.mocketbank.utils.UrlUtils;
+import com.rbkmoney.proxy.mocketbank.utils.UserInteractionUtils;
+import com.rbkmoney.proxy.mocketbank.utils.model.CardAction;
 import com.rbkmoney.proxy.mocketbank.utils.state.constant.SuspendPrefix;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -36,13 +37,14 @@ public class Mpi20Processor {
     private final TimerProperties timerProperties;
 
     @SneakyThrows
-    public PaymentProxyResult processPrepare(PaymentContext context) {
+    public PaymentProxyResult processPrepare(PaymentContext context, CardAction cardAction) {
         PreparationRequest request = ctxToPreparationConverter.convert(context);
         PreparationResponse response = mpi20Client.prepare(request);
         Intent intent = buildPrepareIntent(
                 request,
                 response,
-                extractRedirectTimeout(context.getOptions(), timerProperties.getRedirectTimeout()));
+                extractRedirectTimeout(context.getOptions(), timerProperties.getRedirectTimeout()),
+                cardAction);
         SessionState sessionState = null;
         if (intent.isSetSuspend()) {
             sessionState = new SessionState(
@@ -95,13 +97,18 @@ public class Mpi20Processor {
 
     private Intent buildPrepareIntent(PreparationRequest request,
                                       PreparationResponse response,
-                                      int timerRedirectTimeout) {
+                                      int timerRedirectTimeout,
+                                      CardAction cardAction) {
         if (isPreparationSuccess(response)) {
             String tag = SuspendPrefix.PAYMENT.getPrefix() + response.getThreeDSServerTransID();
             Map<String, String> params = Map.of(
                     THREE_DS_METHOD_DATA, response.getThreeDSMethodData(),
                     TERM_URL, request.getNotificationUrl());
-            UserInteraction interaction = createPostUserInteraction(response.getThreeDSMethodURL(), params);
+            UserInteraction interaction  = UserInteractionUtils.prepareUserInteraction(
+                    response.getThreeDSMethodURL(),
+                    params,
+                    cardAction
+            );
             return createIntentWithSuspendIntent(tag, timerRedirectTimeout, interaction);
         } else {
             return createFinishIntentSuccess();

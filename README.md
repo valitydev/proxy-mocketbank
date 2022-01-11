@@ -1,7 +1,5 @@
 # Адаптер для заглушек
 
-[![Build Status](http://ci.rbkmoney.com/buildStatus/icon?job=rbkmoney_private/proxy-mocketbank/master)](http://ci.rbkmoney.com/job/rbkmoney_private/proxy-mocketbank/master)
-
 Сервис предназначен для эмулирования запросов между различными системами
 
 

@@ -11,6 +11,8 @@ import lombok.SneakyThrows;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import static com.rbkmoney.proxy.mocketbank.service.mpi20.constant.CallbackResponseFields.TERMINATION_URI;
+
 @Component
 @RequiredArgsConstructor
 public class CtxToPreparationConverter implements Converter<PaymentContext, PreparationRequest> {
@@ -26,9 +28,20 @@ public class CtxToPreparationConverter implements Converter<PaymentContext, Prep
 
         return PreparationRequest.builder()
                 .pan(cardData.getPan())
-                .notificationUrl(UrlUtils.getCallbackUrl(
-                        mpi20Properties.getCallbackUrl(),
-                        mpi20Properties.getThreeDsMethodNotificationPath()))
+                .notificationUrl(getNotificationUrl(context))
                 .build();
+    }
+
+    private String getNotificationUrl(PaymentContext context) {
+        String terminationUri = UrlUtils.hasRedirectUrl(context.getPaymentInfo().getPayment())
+                ? context.getPaymentInfo().getPayment().getPayerSessionInfo().getRedirectUrl()
+                : mpi20Properties.getReturnUrl();
+
+        return UrlUtils.getCallbackUrl(
+                mpi20Properties.getCallbackUrl(),
+                mpi20Properties.getThreeDsMethodNotificationPath(),
+                TERMINATION_URI,
+                terminationUri
+        );
     }
 }

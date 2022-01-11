@@ -25,6 +25,20 @@ public class UrlUtils {
                 .toUriString();
     }
 
+    public static String getCallbackUrl(String callbackUrl, String path, String paramName, String paramValue) {
+        return UriComponentsBuilder.fromUriString(callbackUrl)
+                .path(path)
+                .queryParam(paramName, paramValue)
+                .build()
+                .toUriString();
+    }
+
+    public static String getCallbackUrl(String url, Map<String, String> params) {
+        MultiValueMap<String, String> multiValueMapParams = new LinkedMultiValueMap<>();
+        multiValueMapParams.setAll(params);
+        return getCallbackUrl(url, null, multiValueMapParams);
+    }
+
     public static String getCallbackUrl(String callbackUrl, String path, MultiValueMap<String, String> params) {
         return UriComponentsBuilder.fromUriString(callbackUrl)
                 .path(path)
@@ -49,15 +63,6 @@ public class UrlUtils {
                 TERMINATION_URI_REQUEST_PARAM_NAME,
                 hasRedirectUrl(payment) ? payment.getPayerSessionInfo().getRedirectUrl() : defaultValue);
         return param;
-    }
-
-    public static String prepareUrlWithParams(String url, Map<String, String> params) {
-        MultiValueMap<String, String> multiValueMapParams = new LinkedMultiValueMap<>();
-        multiValueMapParams.setAll(params);
-        return UriComponentsBuilder.fromUriString(url)
-                .queryParams(multiValueMapParams)
-                .build()
-                .toUriString();
     }
 
     public static boolean hasRedirectUrl(InvoicePayment payment) {
