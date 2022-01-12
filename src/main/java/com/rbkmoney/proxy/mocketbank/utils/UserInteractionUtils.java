@@ -13,9 +13,9 @@ import static com.rbkmoney.java.damsel.utils.creators.ProxyProviderPackageCreato
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserInteractionUtils {
 
-    public static UserInteraction prepareUserInteraction(String url,
-                                                   Map<String, String> params,
-                                                   CardAction action) {
+    public static UserInteraction getUserInteraction(String url,
+                                                     Map<String, String> params,
+                                                     CardAction action) {
         if (CardAction.isGetAcsCard(action)) {
             return createGetUserInteraction(UrlUtils.getCallbackUrl(url, params));
         }

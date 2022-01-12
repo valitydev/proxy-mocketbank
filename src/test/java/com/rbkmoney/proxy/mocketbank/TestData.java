@@ -33,7 +33,8 @@ public class TestData {
     public static final String DEFAULT_BIN = "123456";
 
     public static final String DEFAULT_THREE_DS_TRANS_ID = "testThreeDSServerTransID";
-    public static final String DEFAULT_THREE_METHOD_DATA = "testThreeDSMethodData";
+    public static final String DEFAULT_THREE_METHOD_DATA =
+            "{\"threeDSServerTransID\":\"3-D Secure 2.0 Success with Get Acs64b16722-78cf-41c9-b401-e13f798128a8\"}\"";
 
 
     public static CardDataProxyModel createCardDataProxyModel(String pan) {
