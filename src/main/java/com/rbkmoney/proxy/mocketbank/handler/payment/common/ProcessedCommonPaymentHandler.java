@@ -147,7 +147,7 @@ public class ProcessedCommonPaymentHandler implements CommonPaymentHandler {
         int timerRedirectTimeout = extractRedirectTimeout(options, timerProperties.getRedirectTimeout());
 
         Intent intent = createIntentWithSuspendIntent(
-                tag, timerRedirectTimeout, UserInteractionUtils.prepareUserInteraction(url, params, action)
+                tag, timerRedirectTimeout, UserInteractionUtils.getUserInteraction(url, params, action)
         );
         Failure failure = errorMapping.mapFailure(DEFAULT_ERROR_CODE, THREE_DS_NOT_FINISHED);
         intent.getSuspend().setTimeoutBehaviour(TimeoutBehaviour.operation_failure(OperationFailure.failure(failure)));

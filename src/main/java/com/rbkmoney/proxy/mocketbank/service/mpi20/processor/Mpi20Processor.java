@@ -17,6 +17,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,9 +104,9 @@ public class Mpi20Processor {
         if (isPreparationSuccess(response)) {
             String tag = SuspendPrefix.PAYMENT.getPrefix() + response.getThreeDSServerTransID();
             Map<String, String> params = Map.of(
-                    THREE_DS_METHOD_DATA, response.getThreeDSMethodData(),
+                    THREE_DS_METHOD_DATA, URLEncoder.encode(response.getThreeDSMethodData(), StandardCharsets.UTF_8),
                     TERM_URL, request.getNotificationUrl());
-            UserInteraction interaction  = UserInteractionUtils.prepareUserInteraction(
+            UserInteraction interaction  = UserInteractionUtils.getUserInteraction(
                     response.getThreeDSMethodURL(),
                     params,
                     cardAction

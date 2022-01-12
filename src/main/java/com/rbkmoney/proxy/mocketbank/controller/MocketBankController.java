@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -80,10 +81,9 @@ public class MocketBankController {
     public String mpi20ThreeDsMethodNotification(HttpServletRequest servletRequest,
                                                  HttpServletResponse servletResponse) throws IOException {
         log.info("three_ds_method_notification {}", httpServletRequestToString(servletRequest));
-        ThreeDSMethodData threeDSMethodData =
-                objectMapper.readValue(servletRequest.getParameter(
-                        CallbackResponseFields.THREE_DS_METHOD_DATA),
-                        ThreeDSMethodData.class);
+        String threeDsMethodData = URLDecoder.decode(
+                servletRequest.getParameter(CallbackResponseFields.THREE_DS_METHOD_DATA), StandardCharsets.UTF_8);
+        ThreeDSMethodData threeDSMethodData = objectMapper.readValue(threeDsMethodData, ThreeDSMethodData.class);
         String tag = SuspendPrefix.PAYMENT.getPrefix() + threeDSMethodData.getThreeDSServerTransID();
         ByteBuffer callback = prepareCallbackParams(servletRequest);
         String response = StringUtil.EMPTY_STRING;
