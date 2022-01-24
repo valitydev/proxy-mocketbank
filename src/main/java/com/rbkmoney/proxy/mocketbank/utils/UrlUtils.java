@@ -10,6 +10,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +55,7 @@ public class UrlUtils {
         Map<String, String> params = new HashMap<>();
         params.put(MpiField.PA_REQ.getValue(), verifyEnrollmentResponse.getPaReq());
         params.put(MpiField.MD.getValue(), tag);
-        params.put(MpiField.TERM_URL.getValue(), termUrl);
+        params.put(MpiField.TERM_URL.getValue(), URLEncoder.encode(termUrl, StandardCharsets.UTF_8));
         return params;
     }
 
