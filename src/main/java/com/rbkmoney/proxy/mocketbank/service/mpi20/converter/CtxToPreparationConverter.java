@@ -11,6 +11,9 @@ import lombok.SneakyThrows;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import static com.rbkmoney.proxy.mocketbank.service.mpi20.constant.CallbackResponseFields.TERMINATION_URI;
 
 @Component
@@ -28,7 +31,7 @@ public class CtxToPreparationConverter implements Converter<PaymentContext, Prep
 
         return PreparationRequest.builder()
                 .pan(cardData.getPan())
-                .notificationUrl(getNotificationUrl(context))
+                .notificationUrl(URLEncoder.encode(getNotificationUrl(context), StandardCharsets.UTF_8))
                 .build();
     }
 
