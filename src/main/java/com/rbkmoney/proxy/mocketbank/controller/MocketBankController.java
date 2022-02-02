@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -32,6 +31,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/${server.rest.endpoint}")
 public class MocketBankController {
 
+    private static final String EMPTY_STRING = "";
     private final HellgateAdapterClient hellgateClient;
     private final AdapterMockBankProperties mockBankProperties;
     private final ObjectMapper objectMapper;
@@ -42,7 +42,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         String tag = getTag(request);
         log.info("ReceivePaymentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = "";
+        String resp = EMPTY_STRING;
         try {
             ByteBuffer callback = prepareCallbackParams(request);
             ByteBuffer response = hellgateClient.processPaymentCallback(tag, callback);
@@ -62,7 +62,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         String tag = getTag(request);
         log.info("ReceiveRecurrentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = "";
+        String resp = EMPTY_STRING;
         try {
             ByteBuffer callback = prepareCallbackParams(request);
             ByteBuffer response = hellgateClient.processRecurrentTokenCallback(tag, callback);
@@ -85,7 +85,7 @@ public class MocketBankController {
         ThreeDSMethodData threeDSMethodData = objectMapper.readValue(threeDsMethodData, ThreeDSMethodData.class);
         String tag = SuspendPrefix.PAYMENT.getPrefix() + threeDSMethodData.getThreeDSServerTransID();
         ByteBuffer callback = prepareCallbackParams(servletRequest);
-        String response = "";
+        String response = EMPTY_STRING;
         try {
             ByteBuffer callbackResponse = hellgateClient.processPaymentCallback(tag, callback);
             response = new String(callbackResponse.array(), StandardCharsets.UTF_8);
@@ -103,7 +103,7 @@ public class MocketBankController {
                 servletRequest.getParameter(CallbackResponseFields.CRES), CRes.class);
         String tag = SuspendPrefix.PAYMENT.getPrefix() + challengeRes.getThreeDSServerTransID();
         ByteBuffer callback = prepareCallbackParams(servletRequest);
-        String response = "";
+        String response = EMPTY_STRING;
         try {
             ByteBuffer callbackResponse = hellgateClient.processPaymentCallback(tag, callback);
             response = new String(callbackResponse.array(), StandardCharsets.UTF_8);
@@ -128,7 +128,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         log.info("receiveQpsIncomingParameters with info {}", httpServletRequestToString(request));
         servletResponse.sendRedirect(mockBankProperties.getFinishInteraction());
-        return "";
+        return EMPTY_STRING;
     }
 
     @RequestMapping(value = "/dw", method = RequestMethod.POST)
@@ -137,7 +137,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         log.info("receiveDWIncomingParameters with info {}", httpServletRequestToString(request));
         servletResponse.sendRedirect(mockBankProperties.getFinishInteraction());
-        return "";
+        return EMPTY_STRING;
     }
 
     private String getTag(HttpServletRequest request) {
@@ -146,7 +146,7 @@ public class MocketBankController {
         } else {
             log.warn("Missing a required parameter 'MD' ");
         }
-        return "";
+        return EMPTY_STRING;
     }
 
     private ByteBuffer prepareCallbackParams(HttpServletRequest request) throws JsonProcessingException {
