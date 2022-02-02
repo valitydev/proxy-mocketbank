@@ -11,7 +11,6 @@ import com.rbkmoney.proxy.mocketbank.service.mpi20.model.CRes;
 import com.rbkmoney.proxy.mocketbank.service.mpi20.model.ThreeDSMethodData;
 import com.rbkmoney.proxy.mocketbank.utils.UrlUtils;
 import com.rbkmoney.proxy.mocketbank.utils.state.constant.SuspendPrefix;
-import io.micrometer.shaded.io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -43,7 +42,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         String tag = getTag(request);
         log.info("ReceivePaymentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = StringUtil.EMPTY_STRING;
+        String resp = "";
         try {
             ByteBuffer callback = prepareCallbackParams(request);
             ByteBuffer response = hellgateClient.processPaymentCallback(tag, callback);
@@ -63,7 +62,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         String tag = getTag(request);
         log.info("ReceiveRecurrentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = StringUtil.EMPTY_STRING;
+        String resp = "";
         try {
             ByteBuffer callback = prepareCallbackParams(request);
             ByteBuffer response = hellgateClient.processRecurrentTokenCallback(tag, callback);
@@ -86,7 +85,7 @@ public class MocketBankController {
         ThreeDSMethodData threeDSMethodData = objectMapper.readValue(threeDsMethodData, ThreeDSMethodData.class);
         String tag = SuspendPrefix.PAYMENT.getPrefix() + threeDSMethodData.getThreeDSServerTransID();
         ByteBuffer callback = prepareCallbackParams(servletRequest);
-        String response = StringUtil.EMPTY_STRING;
+        String response = "";
         try {
             ByteBuffer callbackResponse = hellgateClient.processPaymentCallback(tag, callback);
             response = new String(callbackResponse.array(), StandardCharsets.UTF_8);
@@ -129,7 +128,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         log.info("receiveQpsIncomingParameters with info {}", httpServletRequestToString(request));
         servletResponse.sendRedirect(mockBankProperties.getFinishInteraction());
-        return StringUtil.EMPTY_STRING;
+        return "";
     }
 
     @RequestMapping(value = "/dw", method = RequestMethod.POST)
@@ -138,7 +137,7 @@ public class MocketBankController {
             HttpServletResponse servletResponse) throws IOException {
         log.info("receiveDWIncomingParameters with info {}", httpServletRequestToString(request));
         servletResponse.sendRedirect(mockBankProperties.getFinishInteraction());
-        return StringUtil.EMPTY_STRING;
+        return "";
     }
 
     private String getTag(HttpServletRequest request) {
@@ -147,7 +146,7 @@ public class MocketBankController {
         } else {
             log.warn("Missing a required parameter 'MD' ");
         }
-        return StringUtil.EMPTY_STRING;
+        return "";
     }
 
     private ByteBuffer prepareCallbackParams(HttpServletRequest request) throws JsonProcessingException {

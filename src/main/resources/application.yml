@@ -4,8 +4,6 @@ spring:
     description: @description@
 ---
 management:
-  security:
-    flag: false
   server:
     port: '@management.port@'
   metrics:
