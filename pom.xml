@@ -135,7 +135,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>adapter-common-lib</artifactId>
-            <version>0.0.26</version>
+            <version>0.0.30</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.rbkmoney</groupId>
