@@ -14,6 +14,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AccountBalanceHandler implements AccountServiceSrv.Iface {
 
     public static final String WRONG_ARGUMENT_EXCEPTION_MESSAGE = "Empty options in account balance request";
+    private static final long MOCK_ACCOUNT_ID_ONE = 100192381092L;
+    private static final long MOCK_ACCOUNT_ID_TWO = 203817234980L;
 
     @Override
     public BalanceResponse getBalance(BalanceRequest balanceRequest) {
@@ -32,13 +34,12 @@ public class AccountBalanceHandler implements AccountServiceSrv.Iface {
     }
 
     private BalanceResponse buildResponse() {
-        Balance balance = new Balance();
-        balance.setCurrencyCode("EUR");
         long amount = ThreadLocalRandom.current().nextLong(1000);
-        balance.setAmount(amount);
-        AccountReference accountReference = new AccountReference();
-        long accountId = ThreadLocalRandom.current().nextLong(10000);
-        accountReference.setId(accountId);
+        Balance balance = new Balance()
+                .setCurrencyCode("EUR")
+                .setAmount(amount);
+        AccountReference accountReference = new AccountReference()
+                .setId(amount > 500L ? MOCK_ACCOUNT_ID_ONE : MOCK_ACCOUNT_ID_TWO);
         return new BalanceResponse()
                 .setAccountReference(accountReference)
                 .setResponseTime(ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT))

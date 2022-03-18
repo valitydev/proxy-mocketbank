@@ -13,8 +13,8 @@ import java.io.IOException;
 @WebServlet("/proxy/mocketbank/balance")
 public class AdapterServletBalance extends GenericServlet {
 
-    private final transient AccountBalanceHandler handler;
-    private transient Servlet servlet;
+    private final AccountBalanceHandler handler;
+    private Servlet servlet;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
