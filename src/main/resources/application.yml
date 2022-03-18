@@ -23,14 +23,14 @@ management:
         include: health,info,prometheus
 ---
 info:
-  version: @version@
+  version: '@version@'
   responsible: Anatoly Cherkasov
   stage: dev
 ---
 server:
-  port: @server.port@
+  port: '@server.port@'
   rest:
-    port: @server.rest.port@
+    port: '@server.rest.port@'
     endpoint: mocketbank
 ---
 adapter-mock-mpi:
