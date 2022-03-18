@@ -1,7 +1,7 @@
 spring:
   application:
-    name: @name@
-    description: @description@
+    name: '@name@'
+    description: '@description@'
 ---
 management:
   server:

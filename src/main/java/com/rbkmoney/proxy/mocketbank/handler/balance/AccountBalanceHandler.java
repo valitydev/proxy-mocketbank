@@ -24,6 +24,14 @@ public class AccountBalanceHandler implements AccountServiceSrv.Iface {
                 ? balanceRequest.getRequestTime()
                 : ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
         log.info("Receive balance request dated {} with options: {}", requestTime, balanceRequest.getOptions());
+        BalanceResponse response = buildResponse();
+        Balance balance = response.getBalance();
+        log.info("Response for account {} with balance {} {}",
+                response.getAccountReference().getId(), balance.getAmount(), balance.getCurrencyCode());
+        return response;
+    }
+
+    private BalanceResponse buildResponse() {
         Balance balance = new Balance();
         balance.setCurrencyCode("EUR");
         long amount = ThreadLocalRandom.current().nextLong(1000);
@@ -31,11 +39,9 @@ public class AccountBalanceHandler implements AccountServiceSrv.Iface {
         AccountReference accountReference = new AccountReference();
         long accountId = ThreadLocalRandom.current().nextLong(10000);
         accountReference.setId(accountId);
-        BalanceResponse response = new BalanceResponse()
+        return new BalanceResponse()
                 .setAccountReference(accountReference)
                 .setResponseTime(ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
                 .setBalance(balance);
-        log.info("Response for account {} with balance {} {}", accountId, amount, balance.getCurrencyCode());
-        return response;
     }
 }
