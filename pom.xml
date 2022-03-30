@@ -27,7 +27,7 @@
         <dockerfile.base.service.tag>7e0c98bb</dockerfile.base.service.tag>
         <shared-resources.version>1.4.0</shared-resources.version>
         <cds-proto.version>1.64-74a763b</cds-proto.version>
-        <accout.balance.proto.version>1.7-ff1c05a</accout.balance.proto.version>
+        <accout.balance.proto.version>1.12-61ea81e</accout.balance.proto.version>
     </properties>
 
     <dependencies>
