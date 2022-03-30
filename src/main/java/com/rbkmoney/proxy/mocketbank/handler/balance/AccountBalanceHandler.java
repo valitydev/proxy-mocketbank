@@ -14,8 +14,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AccountBalanceHandler implements AccountServiceSrv.Iface {
 
     public static final String WRONG_ARGUMENT_EXCEPTION_MESSAGE = "Empty options in account balance request";
-    private static final long MOCK_ACCOUNT_ID_ONE = 100192381092L;
-    private static final long MOCK_ACCOUNT_ID_TWO = 203817234980L;
+    private static final String MOCK_ACCOUNT_ID_ONE = "100192381092";
+    private static final String MOCK_ACCOUNT_ID_TWO = "203817234980";
 
     @Override
     public BalanceResponse getBalance(BalanceRequest balanceRequest) {
