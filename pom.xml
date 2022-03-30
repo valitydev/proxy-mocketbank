@@ -47,12 +47,12 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>5.2</version>
+            <version>5.3</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.1.5.Final</version>
+            <version>6.2.3.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>com.rbkmoney.geck</groupId>
             <artifactId>serializer</artifactId>
-            <version>0.6.11</version>
+            <version>0.6.12</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>adapter-common-lib</artifactId>
-            <version>0.0.26</version>
+            <version>0.0.30</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.rbkmoney</groupId>
@@ -158,7 +158,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.2</version>
+            <version>1.14.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -199,12 +199,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.shared</groupId>
                         <artifactId>maven-filtering</artifactId>
-                        <version>3.1.1</version>
+                        <version>3.2.0</version>
                     </dependency>
                 </dependencies>
                 <configuration>
