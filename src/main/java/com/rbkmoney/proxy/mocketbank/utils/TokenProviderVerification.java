@@ -9,7 +9,7 @@ import java.util.Optional;
 public class TokenProviderVerification {
 
     public static boolean hasBankCardTokenProvider(Object object) {
-        LegacyBankCardTokenProvider bankCardTokenProvider;
+        String bankCardTokenProvider;
         if (object instanceof RecurrentTokenContext) {
             bankCardTokenProvider = extractBankCardTokenProvider((RecurrentTokenContext) object);
         } else {
@@ -20,24 +20,26 @@ public class TokenProviderVerification {
     }
 
 
-    public static LegacyBankCardTokenProvider extractBankCardTokenProvider(PaymentContext context) {
+    public static String extractBankCardTokenProvider(PaymentContext context) {
         return Optional.ofNullable(context.getPaymentInfo())
                 .map(PaymentInfo::getPayment)
                 .map(InvoicePayment::getPaymentResource)
                 .map(PaymentResource::getDisposablePaymentResource)
                 .map(DisposablePaymentResource::getPaymentTool)
                 .map(PaymentTool::getBankCard)
-                .map(BankCard::getTokenProviderDeprecated)
+                .map(BankCard::getPaymentToken)
+                .map(BankCardTokenServiceRef::getId)
                 .orElse(null);
     }
 
-    public static LegacyBankCardTokenProvider extractBankCardTokenProvider(RecurrentTokenContext context) {
+    public static String extractBankCardTokenProvider(RecurrentTokenContext context) {
         return Optional.ofNullable(context.getTokenInfo())
                 .map(RecurrentTokenInfo::getPaymentTool)
                 .map(RecurrentPaymentTool::getPaymentResource)
                 .map(DisposablePaymentResource::getPaymentTool)
                 .map(PaymentTool::getBankCard)
-                .map(BankCard::getTokenProviderDeprecated)
+                .map(BankCard::getPaymentToken)
+                .map(BankCardTokenServiceRef::getId)
                 .orElse(null);
     }
 }

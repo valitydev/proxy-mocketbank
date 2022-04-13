@@ -3,6 +3,7 @@ package com.rbkmoney.proxy.mocketbank.handler;
 import com.rbkmoney.cds.storage.CardData;
 import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.LegacyBankCardTokenProvider;
+import com.rbkmoney.damsel.domain.PaymentSystemRef;
 import com.rbkmoney.damsel.proxy_provider.PaymentProxyResult;
 import com.rbkmoney.proxy.mocketbank.TestData;
 import com.rbkmoney.proxy.mocketbank.utils.CardListUtils;
@@ -41,7 +42,7 @@ public class MocketBankServerHandlerSuccessGooglePayIntegrationTest extends Inte
 
     private void processPayment(CardData cardData) throws TException {
         BankCard bankCard = TestData.createBankCard(cardData);
-        bankCard.setTokenProviderDeprecated(LegacyBankCardTokenProvider.googlepay);
+        bankCard.setPaymentSystem(new PaymentSystemRef("googlepay"));
         mockCds(cardData, bankCard);
 
         PaymentProxyResult proxyResult = handler.processPayment(getContext(bankCard, createTargetProcessed(), null));

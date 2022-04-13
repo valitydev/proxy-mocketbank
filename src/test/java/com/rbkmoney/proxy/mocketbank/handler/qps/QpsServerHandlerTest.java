@@ -27,7 +27,7 @@ public class QpsServerHandlerTest extends IntegrationTest {
     @Test
     void testProcess() throws TException {
         PaymentTerminal paymentTerminal = new PaymentTerminal();
-        paymentTerminal.setTerminalTypeDeprecated(LegacyTerminalPaymentProvider.qps);
+        paymentTerminal.setPaymentService(new PaymentServiceRef("qps"));
         PaymentTool paymentTool = PaymentTool.payment_terminal(paymentTerminal);
         DisposablePaymentResource disposablePaymentResource = createDisposablePaymentResource(
                 createClientInfo(TestData.FINGERPRINT, TestData.IP_ADDRESS),

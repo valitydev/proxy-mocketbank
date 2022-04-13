@@ -43,7 +43,7 @@ public class ProcessedTerminalCommonHandler implements CommonTerminalHandler {
         Intent intent = createFinishIntentSuccess();
         TransactionInfo transactionInfo = CreatorUtils.createDefaultTransactionInfo(context);
 
-        if (LegacyTerminalPaymentProvider.qps.equals(QpsExtractors.extractTerminalPaymentProvider(context))) {
+        if ("qps".equals(QpsExtractors.extractTerminalPaymentProvider(context))) {
             return qpsInteraction(context, intent, invoiceId, transactionInfo);
         }
 
