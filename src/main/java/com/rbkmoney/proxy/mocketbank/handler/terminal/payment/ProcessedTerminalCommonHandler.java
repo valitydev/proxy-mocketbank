@@ -8,6 +8,7 @@ import com.rbkmoney.java.damsel.constant.PaymentState;
 import com.rbkmoney.proxy.mocketbank.configuration.properties.AdapterMockBankProperties;
 import com.rbkmoney.proxy.mocketbank.configuration.properties.TimerProperties;
 import com.rbkmoney.proxy.mocketbank.handler.terminal.CommonTerminalHandler;
+import com.rbkmoney.proxy.mocketbank.handler.terminal.TerminalConstant;
 import com.rbkmoney.proxy.mocketbank.utils.CreatorUtils;
 import com.rbkmoney.proxy.mocketbank.utils.UrlUtils;
 import com.rbkmoney.proxy.mocketbank.utils.qps.QpsCreators;
@@ -43,7 +44,7 @@ public class ProcessedTerminalCommonHandler implements CommonTerminalHandler {
         Intent intent = createFinishIntentSuccess();
         TransactionInfo transactionInfo = CreatorUtils.createDefaultTransactionInfo(context);
 
-        if ("qps".equals(QpsExtractors.extractTerminalPaymentProvider(context))) {
+        if (TerminalConstant.QPS.equals(QpsExtractors.extractTerminalPaymentProvider(context))) {
             return qpsInteraction(context, intent, invoiceId, transactionInfo);
         }
 
