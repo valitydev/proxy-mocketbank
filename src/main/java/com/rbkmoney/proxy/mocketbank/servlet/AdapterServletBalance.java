@@ -10,7 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@WebServlet("/proxy/mocketbank/balance")
+@WebServlet("/proxy/mocketbank/p2p-credit/balance")
 public class AdapterServletBalance extends GenericServlet {
 
     private final AccountBalanceHandler handler;
