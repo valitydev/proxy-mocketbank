@@ -2,7 +2,7 @@ package com.rbkmoney.proxy.mocketbank.servlet;
 
 import com.rbkmoney.proxy.mocketbank.handler.balance.AccountBalanceHandler;
 import com.rbkmoney.woody.thrift.impl.http.THServiceBuilder;
-import dev.vality.account_balance.AccountServiceSrv;
+import dev.vality.scrooge.AccountServiceSrv;
 import lombok.RequiredArgsConstructor;
 
 import javax.servlet.*;

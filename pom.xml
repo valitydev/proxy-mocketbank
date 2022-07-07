@@ -27,7 +27,7 @@
         <dockerfile.base.service.tag>7e0c98bb</dockerfile.base.service.tag>
         <shared-resources.version>1.4.0</shared-resources.version>
         <cds-proto.version>1.64-74a763b</cds-proto.version>
-        <accout.balance.proto.version>1.12-61ea81e</accout.balance.proto.version>
+        <scrooge.proto.version>1.16-b0d5cf2</scrooge.proto.version>
     </properties>
 
     <dependencies>
@@ -151,8 +151,8 @@
         <!--dev.vality libs-->
         <dependency>
             <groupId>dev.vality</groupId>
-            <artifactId>account-balance-proto</artifactId>
-            <version>${accout.balance.proto.version}</version>
+            <artifactId>scrooge-proto</artifactId>
+            <version>${scrooge.proto.version}</version>
         </dependency>
         <!--Test libs-->
         <dependency>

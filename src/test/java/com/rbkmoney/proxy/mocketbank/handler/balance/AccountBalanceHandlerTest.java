@@ -1,7 +1,7 @@
 package com.rbkmoney.proxy.mocketbank.handler.balance;
 
-import dev.vality.account_balance.BalanceRequest;
-import dev.vality.account_balance.BalanceResponse;
+import dev.vality.scrooge.BalanceRequest;
+import dev.vality.scrooge.BalanceResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
