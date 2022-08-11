@@ -1,6 +1,5 @@
 package com.rbkmoney.proxy.mocketbank.handler.oct;
 
-import com.rbkmoney.cds.client.storage.CdsClientStorage;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.msgpack.Value;
 import com.rbkmoney.damsel.withdrawals.provider_adapter.*;
@@ -8,6 +7,7 @@ import com.rbkmoney.error.mapping.ErrorMapping;
 import com.rbkmoney.java.cds.utils.model.CardDataProxyModel;
 import com.rbkmoney.java.damsel.utils.creators.DomainPackageCreators;
 import com.rbkmoney.java.damsel.utils.creators.WithdrawalsProviderAdapterPackageCreators;
+import com.rbkmoney.proxy.mocketbank.service.CdsService;
 import com.rbkmoney.proxy.mocketbank.service.oct.verification.CurrencyVerification;
 import com.rbkmoney.proxy.mocketbank.utils.ErrorBuilder;
 import com.rbkmoney.proxy.mocketbank.utils.payout.CardPayout;
@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OctServerHandler implements AdapterSrv.Iface {
 
-    private final CdsClientStorage cds;
+    private final CdsService cdsService;
     private final ErrorMapping errorMapping;
     private final List<CardPayout> cardPayoutList;
     private final WithdrawalValidator withdrawalValidator;
@@ -43,7 +43,7 @@ public class OctServerHandler implements AdapterSrv.Iface {
             Map<String, String> options) {
 
         if (withdrawal.getDestination().isSetBankCard()) {
-            CardDataProxyModel cardData = cds.getCardData(withdrawal);
+            CardDataProxyModel cardData = cdsService.getCardData(withdrawal);
             log.info("cardPayoutList {}", cardPayoutList);
             Optional<CardPayout> cardPayout = PayoutUtils.extractCardPayoutByPan(cardPayoutList, cardData.getPan());
             if (cardPayout.isPresent()) {
