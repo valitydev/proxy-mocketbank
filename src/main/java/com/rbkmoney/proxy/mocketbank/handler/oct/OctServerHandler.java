@@ -1,6 +1,5 @@
 package com.rbkmoney.proxy.mocketbank.handler.oct;
 
-import com.rbkmoney.cds.client.storage.CdsClientStorage;
 import com.rbkmoney.damsel.domain.TransactionInfo;
 import com.rbkmoney.damsel.msgpack.Value;
 import com.rbkmoney.damsel.withdrawals.provider_adapter.*;
@@ -14,6 +13,7 @@ import com.rbkmoney.proxy.mocketbank.utils.payout.CardPayout;
 import com.rbkmoney.proxy.mocketbank.utils.payout.CardPayoutAction;
 import com.rbkmoney.proxy.mocketbank.utils.payout.PayoutUtils;
 import com.rbkmoney.proxy.mocketbank.validator.WithdrawalValidator;
+import dev.vality.adapter.common.cds.CdsStorageClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OctServerHandler implements AdapterSrv.Iface {
 
-    private final CdsClientStorage cds;
+    private final CdsStorageClient cds;
     private final ErrorMapping errorMapping;
     private final List<CardPayout> cardPayoutList;
     private final WithdrawalValidator withdrawalValidator;
