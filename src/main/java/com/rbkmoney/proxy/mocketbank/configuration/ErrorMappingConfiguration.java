@@ -24,9 +24,7 @@ public class ErrorMappingConfiguration {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
-        ErrorMapping errorMapping = new ErrorMapping(filePath.getInputStream(), patternReason, mapper);
-        errorMapping.validateMapping();
-        return errorMapping;
+        return new ErrorMapping(filePath.getInputStream(), patternReason, mapper);
     }
 
 }
