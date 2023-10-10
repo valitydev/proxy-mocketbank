@@ -5,10 +5,7 @@ on:
     branches:
       - 'master'
       - 'main'
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+      - 'epic/**'
 
 jobs:
   build-and-deploy:

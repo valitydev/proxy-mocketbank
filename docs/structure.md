@@ -5,8 +5,8 @@
 ├── src
 │   ├── main
 │   │   ├── java
-│   │   │   └── com
-│   │   │       └── rbkmoney
+│   │   │   └── dev
+│   │   │       └── vality
 │   │   │           └── proxy
 │   │   │               └── mocketbank
 │   │   │                   ├── ProxyMocketBankApplication.java
