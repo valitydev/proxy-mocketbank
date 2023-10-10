@@ -6,9 +6,6 @@ on:
       - 'master'
       - 'main'
       - 'epic/**'
-  pull_request:
-    branches:
-      - '*'
 
 jobs:
   build-and-deploy:
