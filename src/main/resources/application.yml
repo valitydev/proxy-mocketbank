@@ -25,7 +25,7 @@ management:
       prometheus:
         enabled: false
     tags:
-      application: adapter-paybrokers
+      application: proxy-mocketbank
   endpoint:
     health:
       show-details: always
