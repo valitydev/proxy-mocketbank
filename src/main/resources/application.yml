@@ -1,15 +1,31 @@
+info:
+  version: ${project.version}
+  stage: dev
+
+server:
+  port: ${server.port}
+  rest:
+    port: ${server.rest.port}
+    endpoint: ${server.rest.endpoint}
+
 spring:
   application:
-    name: '@name@'
-    description: '@description@'
----
+    name: ${project.name}
+  output:
+    ansi:
+      enabled: always
+  main:
+    allow-bean-definition-overriding: true
+
 management:
   server:
-    port: '@management.port@'
+    port: ${management.port}
   metrics:
     export:
       prometheus:
         enabled: false
+    tags:
+      application: adapter-paybrokers
   endpoint:
     health:
       show-details: always
@@ -21,28 +37,17 @@ management:
     web:
       exposure:
         include: health,info,prometheus
----
-info:
-  version: '@version@'
-  responsible: Anatoly Cherkasov
-  stage: dev
----
-server:
-  port: '@server.port@'
-  rest:
-    port: '@server.rest.port@'
-    endpoint: mocketbank
----
+
 adapter-mock-mpi:
   url: http://127.0.0.1:8018
----
+
 mpi20:
   threeDsServerUrl: http://127.0.0.1:8018
   callbackUrl: http://127.0.0.1:8019
   threeDsMethodNotificationPath: /${server.rest.endpoint}/three_ds_method_notification
   acsNotificationPath: /${server.rest.endpoint}/acs_notification
   returnUrl: https://example.com/v1/finish-interaction.html
----
+
 adapter-mock-bank:
   callbackUrl: http://127.0.0.1:8019
   pathCallbackUrl: /${server.rest.endpoint}/term_url
@@ -50,44 +55,44 @@ adapter-mock-bank:
   pathQpsCallbackUrl: /${server.rest.endpoint}/qps
   pathDigitalWalletCallbackUrl: /${server.rest.endpoint}/dw
   finishInteraction: https://example.com/v1/finish-interaction.html
----
+
 cds:
   client:
-    identity-document-storage:
-      url: http://127.0.0.1:8021/v1/identity_document_storage
-      networkTimeout: 5000
     storage:
       url: http://127.0.0.1:8021/v1/storage
       networkTimeout: 5000
----
+    identity-document-storage:
+      url: http://127.0.0.1:8021/v1/identity_document_storage
+      networkTimeout: 5000
+
 hellgate:
   client:
-    adapter:
-      url: http://127.0.0.1:8023/v1/proxyhost/provider
+    storage:
+      url: http://localhost:8023/v1/proxyhost/provider
       networkTimeout: 30000
----
+
 fistful:
   client:
     adapter:
       url: http://127.0.0.1:8025/v1/ff_p2p_adapter_host
       networkTimeout: 30000
----
+
 timer:
   redirectTimeout: 600
   qpsTimeout: 600
----
+
 fixture:
   cards: classpath:fixture/cards.csv
   mobilephone: classpath:fixture/mobilephone.csv
   payout: classpath:fixture/payout.csv
----
+
 rest-template:
   requestTimeout: 60000
   poolTimeout: 10000
   connectionTimeout: 10000
   maxTotalPooling: 200
   defaultMaxPerRoute: 200
----
+
 error-mapping:
-  file: classpath:fixture/errors.json
-  patternReason: "'%s' - '%s'" # 'code' - 'description'
+  file-path: classpath:fixture/errors.json
+  pattern: "'%s' - '%s'"

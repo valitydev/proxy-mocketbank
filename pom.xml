@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rbkmoney</groupId>
+        <groupId>dev.vality</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>2.0.15</version>
+        <version>2.1.5</version>
     </parent>
 
     <artifactId>proxy-mocketbank</artifactId>
@@ -21,11 +21,9 @@
         <server.port>8022</server.port>
         <management.port>8023</management.port>
         <server.rest.port>8080</server.rest.port>
+        <server.rest.endpoint>mocketbank</server.rest.endpoint>
         <exposed.ports>${server.port} ${server.rest.port} ${management.port}</exposed.ports>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.maintainer>Anatoly Cherkasov &lt;a.cherkasov@rbkmoney.com&gt;</project.maintainer>
-        <dockerfile.base.service.tag>7e0c98bb</dockerfile.base.service.tag>
-        <shared-resources.version>1.4.0</shared-resources.version>
         <cds-proto.version>1.64-74a763b</cds-proto.version>
         <scrooge.proto.version>1.16-b0d5cf2</scrooge.proto.version>
     </properties>
@@ -38,25 +36,40 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web-services</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
-            <version>5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>6.2.3.Final</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -67,98 +80,43 @@
             <artifactId>commons-text</artifactId>
             <version>1.10.0</version>
         </dependency>
+
+        <!-- vality -->
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        <!--RBK libs-->
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
-            <artifactId>shared-resources</artifactId>
-            <version>${shared-resources.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.adapter-client-lib</groupId>
-            <artifactId>hellgate-adapter-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.adapter-client-lib</groupId>
-            <artifactId>cds-client-storage</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.adapter-client-lib</groupId>
-            <artifactId>cds-client-identity-document-storage</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.adapter-thrift-lib</groupId>
-            <artifactId>cds-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney.woody</groupId>
-            <artifactId>woody-thrift</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>damsel</artifactId>
+            <version>1.597-bfedcb9</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney.adapter-thrift-lib</groupId>
-            <artifactId>damsel-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>cds-proto</artifactId>
-            <version>${cds-proto.version}</version>
+            <version>1.66-01353ce</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>moneypenny-proto</artifactId>
-            <version>1.8-26054d1</version>
+            <version>1.13-dc974a6</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney.geck</groupId>
+            <groupId>dev.vality.geck</groupId>
             <artifactId>serializer</artifactId>
-            <version>0.6.12</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>identdocstore-proto</artifactId>
-            <version>1.10-89a4cda</version>
+            <version>1.18-0ab676d</version>
         </dependency>
         <dependency>
-            <groupId>com.rbkmoney</groupId>
+            <groupId>dev.vality</groupId>
             <artifactId>adapter-common-lib</artifactId>
-            <version>0.0.30</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.rbkmoney</groupId>
-                    <artifactId>damsel-utils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.rbkmoney</groupId>
-                    <artifactId>cds-utils</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>1.2.13</version>
         </dependency>
-        <!--dev.vality libs-->
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>scrooge-proto</artifactId>
             <version>${scrooge.proto.version}</version>
         </dependency>
-        <dependency>
-            <groupId>dev.vality</groupId>
-            <artifactId>adapter-common-lib</artifactId>
-            <version>1.1.5</version>
-        </dependency>
+
         <!--Test libs-->
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -195,7 +153,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -204,17 +161,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.7.0</version>
+                <version>3.0.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.shared</groupId>
                         <artifactId>maven-filtering</artifactId>
-                        <version>3.2.0</version>
+                        <version>3.3.1</version>
                     </dependency>
                 </dependencies>
                 <configuration>
                     <resourceBundles>
-                        <resourceBundle>com.rbkmoney:shared-resources:${shared-resources.version}</resourceBundle>
+                        <resourceBundle>dev.vality:shared-resources:${shared-resources.version}</resourceBundle>
                     </resourceBundles>
                     <attachToMain>false</attachToMain>
                     <attachToTest>false</attachToTest>
@@ -229,5 +186,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
