@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>proxy-mocketbank</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>proxy-mocketbank</name>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>cds-proto</artifactId>
-            <version>1.66-01353ce</version>
+            <version>1.70-5227377</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>
