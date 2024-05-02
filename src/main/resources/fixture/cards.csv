@@ -3,7 +3,7 @@ cardPan, action, paymentSystem
 5555555555554444, Success, MasterCard
 586824160825533338, Success, Maestro
 2201382000000013, Success, MIR
-9860090202021851, Success, HUMO
+9860099104199734, Success, HUMO
 4556418324571052, 3-D Secure Success with Get Acs, Visa
 4012888888881881, 3-D Secure Success, Visa
 5169147129584558, 3-D Secure Success, MasterCard
@@ -19,7 +19,7 @@ cardPan, action, paymentSystem
 5100000000000511, Invalid Card, MasterCard
 4003830171874018, CVV Match Fail, Visa
 5496198584584769, CVV Match Fail, MasterCard
-9860090503021844, CVV Match Fail, HUMO
+9860094242201120, CVV Match Fail, HUMO
 4000000000000069, Expired Card, Visa
 5105105105105100, Expired Card, MasterCard
 4111110000000112, Unknown Failure, Visa
