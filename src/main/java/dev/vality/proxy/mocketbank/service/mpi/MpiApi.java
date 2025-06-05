@@ -5,8 +5,9 @@ import dev.vality.proxy.mocketbank.configuration.properties.AdapterMockMpiProper
 import dev.vality.proxy.mocketbank.service.mpi.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MpiApi {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final AdapterMockMpiProperties adapterMockMpiProperties;
 
     public VerifyEnrollmentResponse verifyEnrollment(CardDataProxyModel cardData) {
@@ -46,7 +47,12 @@ public class MpiApi {
     private <T> T sendMessage(String methodName, PrepareFieldsObject request, Class<T> responseClass) {
         String prepareUrl = prepareUrl(adapterMockMpiProperties.getUrl(), methodName);
         log.info("MockMpi {} url: {} with request: {}", methodName, prepareUrl, request);
-        T response = restTemplate.postForObject(prepareUrl, request.prepareFields(), responseClass);
+        ResponseEntity<T> responseEntity = restClient.post()
+                .uri(prepareUrl)
+                .body(request.prepareFields())
+                .retrieve()
+                .toEntity(responseClass);
+        var response = responseEntity.getBody();
         log.info("MockMpi {} url: {} with response: {}", methodName, prepareUrl, response);
         return response;
     }

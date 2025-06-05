@@ -4,7 +4,9 @@ import dev.vality.proxy.mocketbank.configuration.properties.Mpi20Properties;
 import dev.vality.proxy.mocketbank.service.mpi20.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -12,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class Mpi20Client {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final Mpi20Properties mpi20Properties;
 
     public PreparationResponse prepare(PreparationRequest request) {
@@ -30,7 +32,12 @@ public class Mpi20Client {
     private <T, N> T send(String methodName, N request, Class<T> responseClass) {
         String prepareUrl = prepareUrl(methodName);
         log.info("MockV2Mpi {} url: {} with request: {}", methodName, prepareUrl, request);
-        T response = restTemplate.postForObject(prepareUrl, request, responseClass);
+        ResponseEntity<T> responseEntity = restClient.post()
+                .uri(prepareUrl)
+                .body(request)
+                .retrieve()
+                .toEntity(responseClass);
+        var response = responseEntity.getBody();
         log.info("MockV2Mpi {} url: {} with response: {}", methodName, prepareUrl, response);
         return response;
     }
