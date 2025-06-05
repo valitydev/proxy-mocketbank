@@ -5,8 +5,8 @@ import dev.vality.proxy.mocketbank.decorator.MobileOperatorServerHandlerLog;
 import dev.vality.woody.thrift.impl.http.THServiceBuilder;
 import lombok.RequiredArgsConstructor;
 
-import javax.servlet.*;
-import javax.servlet.annotation.WebServlet;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 
 @RequiredArgsConstructor
