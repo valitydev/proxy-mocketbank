@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class MobileOperatorServerHandlerTest {
+class MobileOperatorServerHandlerTest {
 
     @Autowired
     private MobileOperatorServerHandler handler;

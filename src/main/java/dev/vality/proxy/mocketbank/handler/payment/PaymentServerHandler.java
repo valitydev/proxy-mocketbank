@@ -1,9 +1,10 @@
 package dev.vality.proxy.mocketbank.handler.payment;
 
-import dev.vality.damsel.proxy_provider.*;
+import dev.vality.damsel.proxy_provider.PaymentCallbackResult;
+import dev.vality.damsel.proxy_provider.PaymentContext;
+import dev.vality.damsel.proxy_provider.PaymentProxyResult;
+import dev.vality.damsel.proxy_provider.ProviderProxySrv;
 import dev.vality.proxy.mocketbank.handler.payment.callback.PaymentCallbackHandler;
-import dev.vality.proxy.mocketbank.handler.payment.callback.RecurrentTokenCallbackHandler;
-import dev.vality.proxy.mocketbank.handler.payment.recurrent.GenerateTokenHandler;
 import dev.vality.proxy.mocketbank.validator.PaymentValidator;
 import lombok.RequiredArgsConstructor;
 import org.apache.thrift.TException;
@@ -18,21 +19,7 @@ public class PaymentServerHandler implements ProviderProxySrv.Iface {
 
     private final List<CommonPaymentHandler> handlers;
     private final PaymentCallbackHandler paymentCallbackHandler;
-    private final GenerateTokenHandler generateTokenHandler;
-    private final RecurrentTokenCallbackHandler recurrentTokenCallbackHandler;
     private final PaymentValidator paymentValidator;
-
-    @Override
-    public RecurrentTokenProxyResult generateToken(RecurrentTokenContext context) {
-        return generateTokenHandler.handler(context);
-    }
-
-    @Override
-    public RecurrentTokenCallbackResult handleRecurrentTokenCallback(
-            ByteBuffer callback,
-            RecurrentTokenContext context) {
-        return recurrentTokenCallbackHandler.handler(callback, context);
-    }
 
     @Override
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {

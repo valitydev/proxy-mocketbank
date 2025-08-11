@@ -1,7 +1,5 @@
 package dev.vality.proxy.mocketbank.service;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.Name;
 import dev.vality.adapter.common.cds.CdsStorageClient;
 import dev.vality.adapter.common.cds.model.CardDataProxyModel;
 import dev.vality.adapter.common.exception.CdsStorageException;
@@ -11,6 +9,8 @@ import dev.vality.damsel.withdrawals.domain.Destination;
 import dev.vality.damsel.withdrawals.provider_adapter.Withdrawal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.Name;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 

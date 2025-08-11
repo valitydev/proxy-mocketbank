@@ -8,8 +8,8 @@ import dev.vality.damsel.withdrawals.provider_adapter.ProcessResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static dev.vality.adapter.common.damsel.WithdrawalsProviderVerification.isSuccess;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,7 +21,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class OctServerHandlerTest extends OctIntegrationTest {
 
-    @MockBean
+    @MockitoBean
     private CdsStorageClient cdsStorageClient;
 
     @Test

@@ -11,6 +11,8 @@ import dev.vality.proxy.mocketbank.service.mpi20.model.CRes;
 import dev.vality.proxy.mocketbank.service.mpi20.model.ThreeDSMethodData;
 import dev.vality.proxy.mocketbank.utils.UrlUtils;
 import dev.vality.proxy.mocketbank.utils.state.constant.SuspendPrefix;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -18,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -56,26 +56,6 @@ public class MocketBankController {
             log.warn("Failed handle callback for payment", e);
         } catch (Exception e) {
             log.error("Failed handle callback for payment", e);
-        }
-        sendRedirect(request, servletResponse);
-        return resp;
-    }
-
-    @RequestMapping(value = "/rec_term_url", method = RequestMethod.POST)
-    public String receiveRecurrentIncomingParameters(
-            HttpServletRequest request,
-            HttpServletResponse servletResponse) throws IOException {
-        String tag = getTag(request);
-        log.info("ReceiveRecurrentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = EMPTY_STRING;
-        try {
-            ByteBuffer callback = prepareCallbackParams(request);
-            ByteBuffer response = hellgateClient.processRecurrentTokenCallback(tag, callback);
-            resp = new String(response.array(), StandardCharsets.UTF_8);
-        } catch (HellgateException e) {
-            log.warn("Failed handle callback for recurrent", e);
-        } catch (Exception e) {
-            log.error("Failed handle callback for recurrent", e);
         }
         sendRedirect(request, servletResponse);
         return resp;
