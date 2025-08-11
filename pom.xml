@@ -7,7 +7,7 @@
     <parent>
         <groupId>dev.vality</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.4</version>
     </parent>
 
     <artifactId>proxy-mocketbank</artifactId>
@@ -84,6 +84,11 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.datafaker</groupId>
+            <artifactId>datafaker</artifactId>
+            <version>2.4.2</version>
+        </dependency>
 
         <!-- vality -->
         <dependency>
@@ -112,7 +117,7 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>adapter-common-lib</artifactId>
-            <version>2.0.4</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>

@@ -6,10 +6,9 @@ import dev.vality.adapter.common.cds.model.CardDataProxyModel;
 import dev.vality.adapter.common.damsel.DomainPackageCreators;
 import dev.vality.cds.storage.CardData;
 import dev.vality.damsel.domain.*;
+import dev.vality.damsel.proxy_provider.*;
 import dev.vality.damsel.proxy_provider.Cash;
 import dev.vality.damsel.proxy_provider.InvoicePaymentRefund;
-import dev.vality.damsel.proxy_provider.Shop;
-import dev.vality.damsel.proxy_provider.*;
 import dev.vality.proxy.mocketbank.TestData;
 import dev.vality.proxy.mocketbank.decorator.PaymentServerHandlerMdcLog;
 import dev.vality.proxy.mocketbank.service.mpi.MpiApi;
@@ -28,16 +27,16 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static dev.vality.adapter.common.damsel.DomainPackageCreators.createDisposablePaymentResource;
 import static dev.vality.adapter.common.damsel.DomainPackageCreators.*;
-import static dev.vality.adapter.common.damsel.ProxyProviderPackageCreators.createInvoice;
+import static dev.vality.adapter.common.damsel.DomainPackageCreators.createDisposablePaymentResource;
 import static dev.vality.adapter.common.damsel.ProxyProviderPackageCreators.*;
+import static dev.vality.adapter.common.damsel.ProxyProviderPackageCreators.createInvoice;
 import static dev.vality.proxy.mocketbank.TestData.DEFAULT_THREE_DS_TRANS_ID;
 import static dev.vality.proxy.mocketbank.TestData.DEFAULT_THREE_METHOD_DATA;
 import static dev.vality.proxy.mocketbank.service.mpi20.constant.CallbackResponseFields.CRES;
@@ -59,13 +58,13 @@ public abstract class IntegrationTest {
     @Autowired
     protected List<Card> cardList;
 
-    @MockBean
+    @MockitoBean
     protected CdsStorageClient cdsStorage;
 
-    @MockBean
+    @MockitoBean
     protected MpiApi mpiApi;
 
-    @MockBean
+    @MockitoBean
     protected Mpi20Client mpi20Client;
 
     protected Map<String, String> prepareProxyOptions() {
@@ -78,7 +77,8 @@ public abstract class IntegrationTest {
         return new Shop()
                 .setId("shop_id")
                 .setCategory(new Category().setName("CategoryName").setDescription("Category description"))
-                .setDetails(new ShopDetails().setName("ShopName").setDescription("Shop description"))
+                .setName("ShopName")
+                .setDescription("Shop description")
                 .setLocation(shopLocation);
     }
 
@@ -183,29 +183,6 @@ public abstract class IntegrationTest {
         );
     }
 
-    protected RecurrentTokenContext createRecurrentTokenContext(BankCard bankCard) {
-        RecurrentTokenContext context = new RecurrentTokenContext();
-        context.setSession(new RecurrentTokenSession());
-        context.setTokenInfo(
-                createRecurrentTokenInfo(
-                        createRecurrentPaymentTool(
-                                createDisposablePaymentResource(
-                                        createClientInfo(TestData.FINGERPRINT, TestData.IP_ADDRESS),
-                                        TestData.SESSION_ID,
-                                        createPaymentTool(bankCard)
-                                )
-                        ).setId(recurrentId)
-                )
-        );
-        return context;
-    }
-
-    protected PaymentResource getPaymentResourceRecurrent(String token) {
-        return createPaymentResourceRecurrentPaymentResource(
-                createRecurrentPaymentResource(token)
-        );
-    }
-
     protected void mockCds(CardData cardData, BankCard bankCard) {
         CardDataProxyModel proxyModel = CardDataProxyModel.builder()
                 .cardholderName(bankCard.getCardholderName())
@@ -215,11 +192,8 @@ public abstract class IntegrationTest {
                 .build();
 
         Mockito.when(cdsStorage.getCardData(anyString())).thenReturn(cardData);
-        Mockito.when(cdsStorage.getCardData((RecurrentTokenContext) any())).thenReturn(proxyModel);
         Mockito.when(cdsStorage.getCardData((PaymentContext) any())).thenReturn(proxyModel);
-        Mockito.when(cdsStorage.getSessionData((RecurrentTokenContext) any()))
-                .thenReturn(CdsPackageCreators.createSessionDataWithCvv(TestData.DEFAULT_CVV));
-        Mockito.when(cdsStorage.getSessionData((PaymentContext) any()))
+        Mockito.when(cdsStorage.getSessionData(any()))
                 .thenReturn(CdsPackageCreators.createSessionDataWithCvv(TestData.DEFAULT_CVV));
     }
 

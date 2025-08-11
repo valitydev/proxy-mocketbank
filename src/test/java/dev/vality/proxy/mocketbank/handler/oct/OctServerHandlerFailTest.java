@@ -9,8 +9,8 @@ import dev.vality.proxy.mocketbank.utils.PayoutCardListUtils;
 import dev.vality.proxy.mocketbank.utils.payout.CardPayoutAction;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class OctServerHandlerFailTest extends OctIntegrationTest {
 
-    @MockBean
+    @MockitoBean
     private CdsStorageClient cdsStorageClient;
 
     @Test

@@ -1,6 +1,9 @@
 package dev.vality.proxy.mocketbank.handler.terminal;
 
-import dev.vality.damsel.proxy_provider.*;
+import dev.vality.damsel.proxy_provider.PaymentCallbackResult;
+import dev.vality.damsel.proxy_provider.PaymentContext;
+import dev.vality.damsel.proxy_provider.PaymentProxyResult;
+import dev.vality.damsel.proxy_provider.ProviderProxySrv;
 import dev.vality.proxy.mocketbank.handler.terminal.payment.UnsupportedTerminalHandler;
 import dev.vality.proxy.mocketbank.validator.TerminalValidator;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +19,6 @@ public class TerminalServerHandler implements ProviderProxySrv.Iface {
 
     private final TerminalValidator terminalValidator;
     private final List<CommonTerminalHandler> handlers;
-
-    @Override
-    public RecurrentTokenProxyResult generateToken(RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
-
-    @Override
-    public RecurrentTokenCallbackResult handleRecurrentTokenCallback(
-            ByteBuffer callback,
-            RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
 
     @Override
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {

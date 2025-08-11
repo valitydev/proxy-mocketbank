@@ -1,6 +1,9 @@
 package dev.vality.proxy.mocketbank.handler.digital.wallet;
 
-import dev.vality.damsel.proxy_provider.*;
+import dev.vality.damsel.proxy_provider.PaymentCallbackResult;
+import dev.vality.damsel.proxy_provider.PaymentContext;
+import dev.vality.damsel.proxy_provider.PaymentProxyResult;
+import dev.vality.damsel.proxy_provider.ProviderProxySrv;
 import dev.vality.proxy.mocketbank.handler.digital.wallet.callback.DigitalWalletCallbackHandler;
 import dev.vality.proxy.mocketbank.validator.DigitalWalletValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +22,6 @@ public class DigitalWalletServerHandler implements ProviderProxySrv.Iface {
     private final List<CommonDigitalWalletHandler> handlers;
     private final DigitalWalletCallbackHandler digitalWalletCallbackHandler;
     private final DigitalWalletValidator digitalWalletValidator;
-
-    @Override
-    public RecurrentTokenProxyResult generateToken(RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
-
-    @Override
-    public RecurrentTokenCallbackResult handleRecurrentTokenCallback(
-            ByteBuffer callback,
-            RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
 
     @Override
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {
