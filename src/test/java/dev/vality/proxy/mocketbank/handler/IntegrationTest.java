@@ -78,7 +78,6 @@ public abstract class IntegrationTest {
         return new Shop()
                 .setId("shop_id")
                 .setCategory(new Category().setName("CategoryName").setDescription("Category description"))
-                .setDetails(new ShopDetails().setName("ShopName").setDescription("Shop description"))
                 .setLocation(shopLocation);
     }
 
@@ -183,23 +182,6 @@ public abstract class IntegrationTest {
         );
     }
 
-    protected RecurrentTokenContext createRecurrentTokenContext(BankCard bankCard) {
-        RecurrentTokenContext context = new RecurrentTokenContext();
-        context.setSession(new RecurrentTokenSession());
-        context.setTokenInfo(
-                createRecurrentTokenInfo(
-                        createRecurrentPaymentTool(
-                                createDisposablePaymentResource(
-                                        createClientInfo(TestData.FINGERPRINT, TestData.IP_ADDRESS),
-                                        TestData.SESSION_ID,
-                                        createPaymentTool(bankCard)
-                                )
-                        ).setId(recurrentId)
-                )
-        );
-        return context;
-    }
-
     protected PaymentResource getPaymentResourceRecurrent(String token) {
         return createPaymentResourceRecurrentPaymentResource(
                 createRecurrentPaymentResource(token)
@@ -215,10 +197,7 @@ public abstract class IntegrationTest {
                 .build();
 
         Mockito.when(cdsStorage.getCardData(anyString())).thenReturn(cardData);
-        Mockito.when(cdsStorage.getCardData((RecurrentTokenContext) any())).thenReturn(proxyModel);
         Mockito.when(cdsStorage.getCardData((PaymentContext) any())).thenReturn(proxyModel);
-        Mockito.when(cdsStorage.getSessionData((RecurrentTokenContext) any()))
-                .thenReturn(CdsPackageCreators.createSessionDataWithCvv(TestData.DEFAULT_CVV));
         Mockito.when(cdsStorage.getSessionData((PaymentContext) any()))
                 .thenReturn(CdsPackageCreators.createSessionDataWithCvv(TestData.DEFAULT_CVV));
     }

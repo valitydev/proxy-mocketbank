@@ -1,6 +1,7 @@
 package dev.vality.proxy.mocketbank.handler.oct;
 
 import dev.vality.damsel.domain.BankCard;
+import dev.vality.damsel.domain.PartyConfigRef;
 import dev.vality.damsel.identity_document_storage.IdentityDocument;
 import dev.vality.damsel.withdrawals.domain.*;
 import dev.vality.damsel.withdrawals.provider_adapter.Cash;
@@ -33,7 +34,7 @@ public abstract class OctIntegrationTest {
                 .setId(WITHDRAWALID)
                 .setDestination(destination)
                 .setBody(createCash())
-                .setSender(SENDER);
+                .setSender(new PartyConfigRef(SENDER));
     }
 
 

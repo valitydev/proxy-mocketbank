@@ -18,18 +18,6 @@ public class TerminalServerHandler implements ProviderProxySrv.Iface {
     private final List<CommonTerminalHandler> handlers;
 
     @Override
-    public RecurrentTokenProxyResult generateToken(RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
-
-    @Override
-    public RecurrentTokenCallbackResult handleRecurrentTokenCallback(
-            ByteBuffer callback,
-            RecurrentTokenContext context) throws TException {
-        throw new TException("Method Not Supported");
-    }
-
-    @Override
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {
         terminalValidator.validate(context, context.getOptions());
         return handlers.stream()

@@ -16,32 +16,6 @@ public class PaymentServerHandlerLog implements ProviderProxySrv.Iface {
     private final ProviderProxySrv.Iface handler;
 
     @Override
-    public RecurrentTokenProxyResult generateToken(RecurrentTokenContext context) throws TException {
-        String recurrentId = ProxyProviderPackageExtractors.extractRecurrentId(context);
-        log.info("GenerateToken started with recurrentId={}", recurrentId);
-        try {
-            RecurrentTokenProxyResult proxyResult = handler.generateToken(context);
-            log.info("GenerateToken finished {} with recurrentId={}", proxyResult, recurrentId);
-            return proxyResult;
-        } catch (Exception ex) {
-            String message = String.format("Failed handle GenerateToken with recurrentId=%s", recurrentId);
-            ServerHandlerLogUtils.logMessage(ex, message, this.getClass());
-            throw ex;
-        }
-    }
-
-    @Override
-    public RecurrentTokenCallbackResult handleRecurrentTokenCallback(
-            ByteBuffer byteBuffer,
-            RecurrentTokenContext context) throws TException {
-        String recurrentId = ProxyProviderPackageExtractors.extractRecurrentId(context);
-        log.info("HandleRecurrentTokenCallback: start with recurrentId={}", recurrentId);
-        RecurrentTokenCallbackResult result = handler.handleRecurrentTokenCallback(byteBuffer, context);
-        log.info("HandleRecurrentTokenCallback end {} with recurrentId={}", result, recurrentId);
-        return result;
-    }
-
-    @Override
     public PaymentProxyResult processPayment(PaymentContext context) throws TException {
         String invoiceId = ProxyProviderPackageExtractors.extractInvoiceId(context);
         String invoicePaymentStatus = ProxyProviderPackageExtractors.extractTargetInvoicePaymentStatus(context);

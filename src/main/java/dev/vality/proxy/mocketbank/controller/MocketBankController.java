@@ -61,26 +61,6 @@ public class MocketBankController {
         return resp;
     }
 
-    @RequestMapping(value = "/rec_term_url", method = RequestMethod.POST)
-    public String receiveRecurrentIncomingParameters(
-            HttpServletRequest request,
-            HttpServletResponse servletResponse) throws IOException {
-        String tag = getTag(request);
-        log.info("ReceiveRecurrentIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        String resp = EMPTY_STRING;
-        try {
-            ByteBuffer callback = prepareCallbackParams(request);
-            ByteBuffer response = hellgateClient.processRecurrentTokenCallback(tag, callback);
-            resp = new String(response.array(), StandardCharsets.UTF_8);
-        } catch (HellgateException e) {
-            log.warn("Failed handle callback for recurrent", e);
-        } catch (Exception e) {
-            log.error("Failed handle callback for recurrent", e);
-        }
-        sendRedirect(request, servletResponse);
-        return resp;
-    }
-
     @RequestMapping(value = "three_ds_method_notification", method = RequestMethod.POST)
     public String mpi20ThreeDsMethodNotification(HttpServletRequest servletRequest,
                                                  HttpServletResponse servletResponse) throws IOException {
