@@ -1,5 +1,7 @@
 package dev.vality.proxy.mocketbank.service.mpi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vality.adapter.common.cds.model.CardDataProxyModel;
 import dev.vality.proxy.mocketbank.configuration.properties.AdapterMockMpiProperties;
 import dev.vality.proxy.mocketbank.service.mpi.model.*;
@@ -18,6 +20,7 @@ public class MpiApi {
 
     private final RestClient restClient;
     private final AdapterMockMpiProperties adapterMockMpiProperties;
+    private final ObjectMapper objectMapper;
 
     public VerifyEnrollmentResponse verifyEnrollment(CardDataProxyModel cardData) {
         VerifyEnrollmentRequest request = VerifyEnrollmentRequest.builder()
@@ -47,14 +50,22 @@ public class MpiApi {
     private <T> T sendMessage(String methodName, PrepareFieldsObject request, Class<T> responseClass) {
         String prepareUrl = prepareUrl(adapterMockMpiProperties.getUrl(), methodName);
         log.info("MockMpi {} url: {} with request: {}", methodName, prepareUrl, request);
-        ResponseEntity<T> responseEntity = restClient.post()
+        ResponseEntity<String> responseEntity = restClient.post()
                 .uri(prepareUrl)
                 .body(request.prepareFields())
                 .retrieve()
-                .toEntity(responseClass);
-        var response = responseEntity.getBody();
-        log.info("MockMpi {} url: {} with response: {}", methodName, prepareUrl, response);
-        return response;
+                .toEntity(String.class);
+        if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+            var response = responseEntity.getBody();
+            log.info("MockMpi {} url: {} with response: {}", methodName, prepareUrl, response);
+            try {
+                return objectMapper.readValue(response, responseClass);
+            } catch (JsonProcessingException e) {
+                log.error("Error call mockMpi {} url: {} with response: {}", methodName, prepareUrl, response, e);
+            }
+        }
+        log.info("Error call mockMpi {} url: {} with response: {}", methodName, prepareUrl, responseEntity);
+        return null;
     }
 
     private String prepareUrl(String url, String path) {
