@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>proxy-mocketbank</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>proxy-mocketbank</name>
@@ -25,7 +25,7 @@
         <exposed.ports>${server.port} ${server.rest.port} ${management.port}</exposed.ports>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cds-proto.version>1.64-74a763b</cds-proto.version>
-        <scrooge.proto.version>1.16-b0d5cf2</scrooge.proto.version>
+        <scrooge.proto.version>1.25-9ce7fc6</scrooge.proto.version>
     </properties>
 
     <dependencies>
