@@ -13,7 +13,8 @@ public enum CardPayoutAction {
     INSUFFICIENT_FUNDS("Insufficient Funds"),
     INVALID_CARD("Invalid Card"),
     EXPIRED_CARD("Expired Card"),
-    UNKNOWN_FAILURE("Unknown Failure");
+    UNKNOWN_FAILURE("Unknown Failure"),
+    CHANGE_AMOUNT("Change Amount");
 
     private static final CardPayoutAction[] FAILED_CARDS = {
             INSUFFICIENT_FUNDS,
@@ -37,6 +38,10 @@ public enum CardPayoutAction {
 
     public static boolean isCardFailed(CardPayoutAction action) {
         return Arrays.asList(FAILED_CARDS).contains(action);
+    }
+
+    public static boolean isAmountChanged(CardPayout card) {
+        return CHANGE_AMOUNT == findByValue(card.getAction());
     }
 
 }
