@@ -94,6 +94,7 @@
         <dependency>
             <groupId>dev.vality</groupId>
             <artifactId>damsel</artifactId>
+            <version>1.699-7280b62</version>
         </dependency>
         <dependency>
             <groupId>dev.vality</groupId>

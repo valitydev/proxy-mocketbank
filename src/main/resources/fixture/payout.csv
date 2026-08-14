@@ -7,3 +7,4 @@ cardPan, action, paymentSystem
 5105105105105100, Expired Card, MasterCard
 4111110000000112, Unknown Failure, Visa
 5124990000000002, Unknown Failure, MasterCard
+4000000000000077, Change Amount, Visa

@@ -31,6 +31,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OctServerHandler implements AdapterSrv.Iface {
 
+    private static final int AMOUNT_CHANGE_DIVISOR = 2;
+
     private final CdsService cdsService;
     private final ErrorMapping errorMapping;
     private final List<CardPayout> cardPayoutList;
@@ -48,6 +50,12 @@ public class OctServerHandler implements AdapterSrv.Iface {
             Optional<CardPayout> cardPayout = PayoutUtils.extractCardPayoutByPan(cardPayoutList, cardData.getPan());
             if (cardPayout.isPresent()) {
                 log.info("Found card payout with action {}", cardPayout.get().getAction());
+                if (CardPayoutAction.isAmountChanged(cardPayout.get())) {
+                    return createSuccessResult(withdrawal).setNewBody(
+                            new Cash(withdrawal.getBody())
+                                    .setAmount(withdrawal.getBody().getAmount() / AMOUNT_CHANGE_DIVISOR)
+                    );
+                }
                 if (CardPayoutAction.isCardFailed(cardPayout.get())) {
                     CardPayoutAction action = CardPayoutAction.findByValue(cardPayout.get().getAction());
                     log.info("Failed card payout with action {}", action);
@@ -56,10 +64,7 @@ public class OctServerHandler implements AdapterSrv.Iface {
             }
         }
 
-        TransactionInfo transactionInfo =
-                DomainPackageCreators.createTransactionInfo(withdrawal.getId(), Collections.emptyMap());
-        Intent intent = WithdrawalsProviderAdapterPackageCreators.createFinishIntentSuccess(transactionInfo);
-        return WithdrawalsProviderAdapterPackageCreators.createProcessResult(intent);
+        return createSuccessResult(withdrawal);
     }
 
     @Override
@@ -100,6 +105,13 @@ public class OctServerHandler implements AdapterSrv.Iface {
 
     private static String getCurrentDateTimeByPattern(Long timestamp) {
         return Instant.ofEpochMilli(timestamp).toString();
+    }
+
+    private static ProcessResult createSuccessResult(Withdrawal withdrawal) {
+        TransactionInfo transactionInfo =
+                DomainPackageCreators.createTransactionInfo(withdrawal.getId(), Collections.emptyMap());
+        Intent intent = WithdrawalsProviderAdapterPackageCreators.createFinishIntentSuccess(transactionInfo);
+        return WithdrawalsProviderAdapterPackageCreators.createProcessResult(intent);
     }
 
 }
