@@ -99,12 +99,12 @@ public class MocketBankController {
         return response;
     }
 
-    @RequestMapping(value = "/p2p", method = RequestMethod.POST)
-    public String receiveP2pIncomingParameters(HttpServletRequest request,
-                                               HttpServletResponse servletResponse) throws IOException {
+    @RequestMapping(value = "/transfer", method = RequestMethod.POST)
+    public String receiveTransferIncomingParameters(HttpServletRequest request,
+                                                    HttpServletResponse servletResponse) throws IOException {
         String tag = getTag(request);
-        log.info("receiveP2pIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
-        throw new UnsupportedOperationException("p2p is not supported");
+        log.info("receiveTransferIncomingParameters with tag {}, info {}", tag, httpServletRequestToString(request));
+        throw new UnsupportedOperationException("transfer is not supported");
     }
 
     @RequestMapping(value = "/qps", method = RequestMethod.GET)

@@ -74,7 +74,7 @@ hellgate:
 fistful:
   client:
     adapter:
-      url: http://127.0.0.1:8025/v1/ff_p2p_adapter_host
+      url: http://127.0.0.1:8025/v1/ff_transfer_adapter_host
       networkTimeout: 30000
 
 timer:
