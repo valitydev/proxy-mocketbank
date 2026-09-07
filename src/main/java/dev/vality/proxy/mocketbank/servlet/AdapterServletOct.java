@@ -10,7 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@WebServlet("/proxy/mocketbank/p2p-credit")
+@WebServlet("/proxy/mocketbank/transfer-credit")
 public class AdapterServletOct extends GenericServlet {
 
     private final transient WithdrawalServerHandlerLog handler;
